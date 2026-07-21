@@ -34,6 +34,8 @@ function App() {
   const handleLogout = () => {
     setCurrentUser(null);
     localStorage.removeItem('listify_user');
+    localStorage.removeItem('listify_tasks');
+    localStorage.removeItem('taskpulse_tasks');
     removeTokens();
     navigate('/');
   };

@@ -3,6 +3,11 @@ import type { Task, Category, Priority, TaskStatus } from '../types/todo';
 
 const TOKEN_KEY = 'accessToken';
 const REFRESH_TOKEN_KEY = 'refreshToken';
+const TOKEN_TIME_KEY = 'accessTokenCreatedAt';
+const REFRESH_TIME_KEY = 'refreshTokenCreatedAt';
+
+export const SESSION_TOKEN_LIFESPAN = 1 * 60 * 1000; // 1 minute
+export const REFRESH_TOKEN_LIFESPAN = 30 * 60 * 1000; // 30 minutes
 
 // Token Management Handlers
 export const getToken = (): string | null =>
@@ -10,6 +15,7 @@ export const getToken = (): string | null =>
 
 export const setToken = (token: string): void => {
   localStorage.setItem(TOKEN_KEY, token);
+  localStorage.setItem(TOKEN_TIME_KEY, Date.now().toString());
 };
 
 export const getRefreshToken = (): string | null =>
@@ -17,33 +23,46 @@ export const getRefreshToken = (): string | null =>
 
 export const setRefreshToken = (token: string): void => {
   localStorage.setItem(REFRESH_TOKEN_KEY, token);
+  localStorage.setItem(REFRESH_TIME_KEY, Date.now().toString());
+};
+
+export const isSessionTokenExpired = (): boolean => {
+  const token = getToken();
+  if (!token) return true;
+  const createdAt = Number(localStorage.getItem(TOKEN_TIME_KEY) || 0);
+  if (!createdAt) return false;
+  return Date.now() - createdAt >= SESSION_TOKEN_LIFESPAN;
+};
+
+export const isRefreshTokenExpired = (): boolean => {
+  const refreshToken = getRefreshToken();
+  if (!refreshToken) return true;
+  const createdAt = Number(localStorage.getItem(REFRESH_TIME_KEY) || 0);
+  if (!createdAt) return false;
+  return Date.now() - createdAt >= REFRESH_TOKEN_LIFESPAN;
 };
 
 export const removeTokens = (): void => {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(REFRESH_TOKEN_KEY);
+  localStorage.removeItem(TOKEN_TIME_KEY);
+  localStorage.removeItem(REFRESH_TIME_KEY);
   localStorage.removeItem('listify_access_token');
   localStorage.removeItem('listify_refresh_token');
+  localStorage.removeItem('listify_tasks');
+  localStorage.removeItem('taskpulse_tasks');
 };
 
-// Clean localStorage and keep ONLY accessToken & refreshToken
-export const cleanLocalStorageKeepTokens = (): void => {
+// Clean obsolete legacy storage keys without wiping user session or tokens
+export const cleanLegacyKeys = (): void => {
   if (typeof window === 'undefined' || !window.localStorage) return;
-  const accessToken = localStorage.getItem(TOKEN_KEY) || localStorage.getItem('listify_access_token');
-  const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY) || localStorage.getItem('listify_refresh_token');
-
-  localStorage.clear();
-
-  if (accessToken) {
-    localStorage.setItem(TOKEN_KEY, accessToken);
-  }
-  if (refreshToken) {
-    localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
-  }
+  localStorage.removeItem('listify_access_token');
+  localStorage.removeItem('listify_refresh_token');
+  localStorage.removeItem('taskpulse_tasks');
+  localStorage.removeItem('taskpulse_theme');
 };
 
-// Immediately clean localStorage on module import to ensure only tokens remain
-cleanLocalStorageKeepTokens();
+cleanLegacyKeys();
 
 // Backend Task Type Definitions
 export interface BackendTask {

@@ -923,7 +923,7 @@ export const LoginSection: React.FC<LoginSectionProps> = ({
   };
 
   return (
-    <form className="auth-form-body" onSubmit={handleSubmit}>
+    <form className="auth-form-body" onSubmit={handleSubmit} autoComplete="off">
       {error && (
         <div className="error-alert-box">
           <AlertCircle size={18} />
@@ -938,6 +938,8 @@ export const LoginSection: React.FC<LoginSectionProps> = ({
             type="email"
             className="styled-input"
             placeholder="name@example.com"
+            autoComplete="off"
+            name="email_no_autofill"
             value={email}
             onChange={(e) => {
               setEmail(e.target.value);
@@ -968,6 +970,8 @@ export const LoginSection: React.FC<LoginSectionProps> = ({
             type={showPassword ? 'text' : 'password'}
             className="styled-input"
             placeholder="••••••••••••"
+            autoComplete="new-password"
+            name="password_no_autofill"
             value={password}
             onChange={(e) => {
               setPassword(e.target.value);

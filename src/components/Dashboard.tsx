@@ -532,7 +532,7 @@ body {
 }
 
 .header {
-  padding: 16px 32px;
+  padding: 8px 24px;
   background-color: var(--bg-secondary);
   border-bottom: 1px solid var(--border-color);
   display: flex;
@@ -1685,8 +1685,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
 // 3. HEADER COMPONENT
 // ==========================================
 interface HeaderProps {
-  searchTerm: string;
-  onSearchChange: (value: string) => void;
+  searchTerm?: string;
+  onSearchChange?: (value: string) => void;
   onOpenNewTaskModal: () => void;
   darkMode: boolean;
   onToggleTheme: () => void;
@@ -1695,7 +1695,7 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({
-  searchTerm,
+  searchTerm = '',
   onSearchChange,
   onOpenNewTaskModal,
   darkMode,
@@ -1896,39 +1896,6 @@ export const Header: React.FC<HeaderProps> = ({
             )}
           </div>
         </div>
-      </div>
-
-      <div className="header-search" style={{ position: 'relative' }}>
-        <Search className="search-icon" size={18} />
-        <input
-          type="text"
-          placeholder="Search by task name, tag, or category..."
-          value={searchTerm}
-          onChange={(e) => onSearchChange(e.target.value)}
-        />
-        {searchTerm && (
-          <button
-            onClick={() => onSearchChange('')}
-            style={{
-              position: 'absolute',
-              right: '12px',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              background: 'transparent',
-              border: 'none',
-              color: 'var(--text-muted)',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '4px',
-              borderRadius: '50%',
-            }}
-            title="Clear search"
-          >
-            <X size={14} />
-          </button>
-        )}
       </div>
     </header>
   );
@@ -2935,93 +2902,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
 // ==========================================
 // 11. MAIN DASHBOARD CONTAINER
 // ==========================================
-const INITIAL_TASKS: Task[] = [
-  {
-    id: '1',
-    title: 'Design Modern Glassmorphism Dashboard UI',
-    description: 'Create high-fidelity interactive wireframes for the new task management web app.',
-    priority: 'urgent',
-    category: 'Design',
-    status: 'in_progress',
-    dueDate: new Date(Date.now() + 86400000).toISOString().split('T')[0],
-    estimatedMinutes: 120,
-    pinned: true,
-    tags: ['UI/UX', 'Figma', 'DarkTheme'],
-    subtasks: [
-      { id: '1-1', title: 'Define color tokens & HSL variables', completed: true },
-      { id: '1-2', title: 'Create interactive prototype components', completed: false },
-      { id: '1-3', title: 'Review responsive breakpoints', completed: false },
-    ],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '2',
-    title: 'Integrate Material-UI & Chart.js Analytics',
-    description: 'Connect productivity metrics widgets with live task completion data.',
-    priority: 'high',
-    category: 'Development',
-    status: 'todo',
-    dueDate: new Date(Date.now() + 172800000).toISOString().split('T')[0],
-    estimatedMinutes: 90,
-    pinned: true,
-    tags: ['React', 'TypeScript', 'MUI'],
-    subtasks: [
-      { id: '2-1', title: 'Setup Chart.js canvas provider', completed: true },
-      { id: '2-2', title: 'Format weekly trend dataset', completed: true },
-    ],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '3',
-    title: 'Prepare Quarterly Product Roadmap Presentation',
-    description: 'Gather Q3 metrics and compile key feature milestones for team alignment.',
-    priority: 'medium',
-    category: 'Work',
-    status: 'completed',
-    dueDate: new Date().toISOString().split('T')[0],
-    estimatedMinutes: 60,
-    pinned: false,
-    tags: ['Planning', 'Executive'],
-    subtasks: [
-      { id: '3-1', title: 'Collect user retention stats', completed: true },
-      { id: '3-2', title: 'Draft presentation slides', completed: true },
-    ],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '4',
-    title: 'Daily Fitness & Hydration Routine',
-    description: '30 minutes cardio session and track daily intake.',
-    priority: 'low',
-    category: 'Health',
-    status: 'completed',
-    dueDate: new Date().toISOString().split('T')[0],
-    estimatedMinutes: 30,
-    pinned: false,
-    tags: ['Wellness', 'Habits'],
-    subtasks: [],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '5',
-    title: 'Review Monthly Budget & Investments',
-    description: 'Audit personal expenses and update portfolio balance sheet.',
-    priority: 'medium',
-    category: 'Finance',
-    status: 'todo',
-    dueDate: new Date(Date.now() + 259200000).toISOString().split('T')[0],
-    estimatedMinutes: 45,
-    pinned: false,
-    tags: ['Budget', 'Personal'],
-    subtasks: [],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-];
+const INITIAL_TASKS: Task[] = [];
 
 interface DashboardProps {
   user?: User | null;

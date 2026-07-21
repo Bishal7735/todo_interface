@@ -8,7 +8,11 @@ import {
   getRefreshToken,
   setRefreshToken,
   removeTokens,
-  cleanLocalStorageKeepTokens,
+  cleanLegacyKeys,
+  isSessionTokenExpired,
+  isRefreshTokenExpired,
+  SESSION_TOKEN_LIFESPAN,
+  REFRESH_TOKEN_LIFESPAN,
   getAllTasks,
   createTask,
   updateTask,
@@ -23,7 +27,11 @@ export {
   getRefreshToken,
   setRefreshToken,
   removeTokens,
-  cleanLocalStorageKeepTokens,
+  cleanLegacyKeys,
+  isSessionTokenExpired,
+  isRefreshTokenExpired,
+  SESSION_TOKEN_LIFESPAN,
+  REFRESH_TOKEN_LIFESPAN,
   getAllTasks,
   createTask,
   updateTask,
@@ -49,18 +57,54 @@ const refreshApi = axios.create({
   },
 });
 
-// Attach access token to every request
-api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  const token = getToken();
+// Request Interceptor: Proactively manages 1-minute Session Token & 30-minute Refresh Token lifespans
+api.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
+  const isAuthRoute =
+    config.url === '/auth/login' ||
+    config.url === '/auth/register' ||
+    config.url === '/auth/refresh';
 
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  let token = getToken();
+
+  if (token && !isAuthRoute) {
+    // If 1-minute Session Token has expired, perform proactive silent refresh using 30-min Refresh Token
+    if (isSessionTokenExpired()) {
+      if (isRefreshTokenExpired()) {
+        const currentToken = getToken();
+        if (!currentToken?.startsWith('demo-access-token')) {
+          removeTokens();
+          if (typeof window !== 'undefined') {
+            window.location.href = '/';
+          }
+          throw new Error('Refresh token expired (30-minute lifespan exceeded). Please log in again.');
+        }
+      } else {
+        try {
+          const refreshToken = getRefreshToken();
+          if (refreshToken) {
+            const res: any = await refreshApi.post('/auth/refresh', { refreshToken });
+            const responseData = res?.data || res;
+            const newAccessToken = responseData.accessToken || responseData.token;
+            if (newAccessToken) {
+              setToken(newAccessToken);
+              token = newAccessToken;
+            }
+          }
+        } catch (err) {
+          console.warn('Proactive token refresh attempt failed:', err);
+        }
+      }
+    }
+
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
   }
 
   return config;
 });
 
-// Response Interceptor with Automatic Token Refresh & Retry
+// Response Interceptor: Handles 401 Unauthorized & performs token refresh retry
 api.interceptors.response.use(
   (response) => response.data,
   async (error: AxiosError) => {
@@ -73,6 +117,17 @@ api.interceptors.response.use(
       originalRequest.url !== '/auth/refresh'
     ) {
       originalRequest._retry = true;
+
+      if (isRefreshTokenExpired()) {
+        const token = getToken();
+        if (!token?.startsWith('demo-access-token')) {
+          removeTokens();
+          if (typeof window !== 'undefined') {
+            window.location.href = '/';
+          }
+          return Promise.reject(error);
+        }
+      }
 
       try {
         const refreshToken = getRefreshToken();
