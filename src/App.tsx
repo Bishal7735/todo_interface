@@ -1,27 +1,61 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
-import LoginPage from './components/login';
+import React, { useState } from 'react';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { LandingPage } from './landing/LandingPage';
+import { Dashboard } from './components/Dashboard';
+import { AuthPage } from './components/Login';
+import type { User } from './types/todo';
 
 function App() {
+  const navigate = useNavigate();
+  const [currentUser, setCurrentUser] = useState<User | null>(() => {
+    const savedUser = localStorage.getItem('listify_user');
+    if (savedUser) {
+      try {
+        return JSON.parse(savedUser);
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
+  });
+
+  const handleLoginSuccess = (user: User) => {
+    setCurrentUser(user);
+    localStorage.setItem('listify_user', JSON.stringify(user));
+    navigate('/dashboard');
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+    localStorage.removeItem('listify_user');
+    navigate('/');
+  };
+
   return (
-    <div className="App">
-      <LoginPage />
-      {/* <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header> */}
-    </div>
+    <Routes>
+      <Route path="/" element={<LandingPage />} />
+      <Route
+        path="/login"
+        element={
+          currentUser ? (
+            <Navigate to="/dashboard" replace />
+          ) : (
+            <AuthPage onLoginSuccess={handleLoginSuccess} />
+          )
+        }
+      />
+      <Route
+        path="/dashboard"
+        element={
+          currentUser ? (
+            <Dashboard user={currentUser} onLogout={handleLogout} />
+          ) : (
+            <Navigate to="/login" replace />
+          )
+        }
+      />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
 
