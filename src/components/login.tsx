@@ -613,13 +613,16 @@ const AUTH_STYLES = `
 
 .auth-toast-container {
   position: fixed;
-  bottom: 24px;
-  right: 24px;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 9999;
   display: flex;
-  flex-direction: column-reverse;
+  flex-direction: column;
+  align-items: center;
   gap: 10px;
   pointer-events: none;
+  width: auto;
   max-width: calc(100vw - 32px);
 }
 

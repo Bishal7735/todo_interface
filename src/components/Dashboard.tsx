@@ -1284,7 +1284,7 @@ body {
 
 @keyframes toastSlideIn {
   from {
-    transform: translateY(20px) scale(0.95);
+    transform: translateY(-20px) scale(0.95);
     opacity: 0;
   }
   to {
@@ -1295,23 +1295,26 @@ body {
 
 .toast-container {
   position: fixed;
-  bottom: 24px;
-  right: 24px;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 9999;
   display: flex;
-  flex-direction: column-reverse;
+  flex-direction: column;
+  align-items: center;
   gap: 10px;
   pointer-events: none;
+  width: auto;
   max-width: calc(100vw - 32px);
 }
 
 .toast-item {
   pointer-events: auto;
   min-width: 280px;
-  max-width: 380px;
+  max-width: 420px;
   padding: 14px 18px;
   border-radius: 16px;
-  background: rgba(16, 185, 129, 0.15);
+  background: rgba(16, 185, 129, 0.18);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(52, 211, 153, 0.45);
@@ -1329,6 +1332,14 @@ body {
   border: 1px solid #34D399;
   color: #065F46;
   box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2);
+}
+
+.mobile-create-task-fab {
+  display: none;
+}
+
+.carousel-dots-container {
+  display: none;
 }
 
 @media (min-width: 1440px) {
@@ -1415,6 +1426,10 @@ body {
     margin-left: auto;
   }
 
+  .header .btn-primary {
+    display: none !important;
+  }
+
   .header-top-bar {
     display: flex;
     align-items: center;
@@ -1440,8 +1455,29 @@ body {
   }
 
   .widgets-grid {
-    grid-template-columns: 1fr !important;
-    gap: 16px;
+    display: flex !important;
+    flex-direction: row !important;
+    overflow-x: auto !important;
+    scroll-snap-type: x mandatory !important;
+    -webkit-overflow-scrolling: touch !important;
+    gap: 12px !important;
+    padding-bottom: 8px !important;
+    width: 100% !important;
+  }
+
+  .widgets-grid > div,
+  .widgets-grid > .glass-panel {
+    flex: 0 0 88% !important;
+    scroll-snap-align: center !important;
+    min-width: 0 !important;
+    padding: 16px !important;
+    max-height: 250px !important;
+    overflow-y: auto !important;
+  }
+
+  .chart-wrapper,
+  .chart-wrapper svg {
+    display: none !important;
   }
 
   .tasks-grid {
@@ -1485,16 +1521,69 @@ body {
   }
 
   .toast-container {
-    bottom: 16px !important;
-    right: 16px !important;
-    left: 16px !important;
+    top: 16px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    bottom: auto !important;
+    right: auto !important;
     max-width: calc(100vw - 32px) !important;
   }
 
   .toast-item {
-    min-width: unset !important;
+    min-width: 260px !important;
     width: 100% !important;
-    max-width: 100% !important;
+    max-width: calc(100vw - 32px) !important;
+  }
+
+  .mobile-create-task-fab {
+    display: flex !important;
+    position: fixed !important;
+    bottom: 24px !important;
+    right: 20px !important;
+    z-index: 900 !important;
+    background: var(--grad-primary) !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 30px !important;
+    padding: 12px 20px !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    box-shadow: 0 8px 24px rgba(99, 102, 241, 0.5), 0 0 15px rgba(139, 92, 246, 0.4) !important;
+    cursor: pointer !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+  }
+
+  .mobile-create-task-fab:active {
+    transform: scale(0.95) !important;
+  }
+
+  .carousel-dots-container {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    margin-top: 6px !important;
+  }
+
+  .carousel-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .carousel-dot.active {
+    width: 22px;
+    border-radius: 10px;
+    background: var(--grad-primary);
+    box-shadow: 0 0 10px rgba(139, 92, 246, 0.6);
   }
 }
 
@@ -2350,6 +2439,66 @@ export const CategoryProgress: React.FC<CategoryProgressProps> = ({ tasks }) => 
             </div>
           );
         })}
+      </div>
+    </div>
+  );
+};
+
+// ==========================================
+// 6.5. WIDGET CAROUSEL COMPONENT (MOBILE & DESKTOP)
+// ==========================================
+interface WidgetCarouselProps {
+  tasks: Task[];
+}
+
+export const WidgetCarousel: React.FC<WidgetCarouselProps> = ({ tasks }) => {
+  const [activeSlide, setActiveSlide] = useState(0);
+  const gridRef = React.useRef<HTMLDivElement>(null);
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.currentTarget;
+    if (!target) return;
+    const scrollPosition = target.scrollLeft;
+    const width = target.clientWidth;
+    if (width > 0) {
+      const index = Math.round(scrollPosition / width);
+      if (index !== activeSlide) {
+        setActiveSlide(index);
+      }
+    }
+  };
+
+  const scrollToSlide = (index: number) => {
+    if (gridRef.current) {
+      const width = gridRef.current.clientWidth;
+      gridRef.current.scrollTo({
+        left: width * index,
+        behavior: 'smooth',
+      });
+      setActiveSlide(index);
+    }
+  };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+      <div className="widgets-grid" ref={gridRef} onScroll={handleScroll}>
+        <ProductivityChart tasks={tasks} />
+        <CategoryProgress tasks={tasks} />
+      </div>
+
+      <div className="carousel-dots-container">
+        <button
+          className={`carousel-dot ${activeSlide === 0 ? 'active' : ''}`}
+          onClick={() => scrollToSlide(0)}
+          title="Weekly Productivity Graph"
+          aria-label="Weekly Productivity Graph"
+        />
+        <button
+          className={`carousel-dot ${activeSlide === 1 ? 'active' : ''}`}
+          onClick={() => scrollToSlide(1)}
+          title="Category Breakdown"
+          aria-label="Category Breakdown"
+        />
       </div>
     </div>
   );
@@ -3348,10 +3497,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, onUpdateUs
               <StatsCards stats={stats} />
 
               {/* Dashboard Charts & Category Breakdown Grid */}
-              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
-                <ProductivityChart tasks={tasks} />
-                <CategoryProgress tasks={tasks} />
-              </div>
+              <WidgetCarousel tasks={tasks} />
 
               {/* All Tasks Section Below on Dashboard (Like Before) */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -3381,6 +3527,17 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, onUpdateUs
           )}
         </div>
       </main>
+
+      {/* Mobile Sticky Floating Action Button (FAB) for Creating Tasks */}
+      <button
+        className="mobile-create-task-fab"
+        onClick={handleOpenNewTaskModal}
+        title="Create Task"
+        aria-label="Create Task"
+      >
+        <Plus size={20} />
+        <span>Create Task</span>
+      </button>
 
       <TaskModal
         isOpen={isModalOpen}
