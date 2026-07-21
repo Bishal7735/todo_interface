@@ -58,7 +58,7 @@ import {
 } from 'lucide-react';
 
 // ==========================================
-// EMBEDDED COMPONENT STYLES
+// COMPONENT STYLES
 // ==========================================
 const DASHBOARD_STYLES = `
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
@@ -1155,8 +1155,8 @@ body {
   animation: slideUp 0.25s cubic-bezier(0, 0, 0.2, 1);
 }
 
-/* Aesthetic Task Modal Studio Styling */
-.modal-card-aesthetic {
+/* Task Studio Modal Styling */
+.task-modal-card {
   max-width: 640px !important;
   border-radius: 24px !important;
   background: rgba(15, 23, 42, 0.94) !important;
@@ -1169,13 +1169,13 @@ body {
   overflow-y: auto !important;
 }
 
-.light-theme .modal-card-aesthetic {
+.light-theme .task-modal-card {
   background: rgba(255, 255, 255, 0.96) !important;
   border: 1px solid rgba(99, 102, 241, 0.2) !important;
   box-shadow: 0 25px 50px -12px rgba(99, 102, 241, 0.25) !important;
 }
 
-.modal-header-aesthetic {
+.task-modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1195,7 +1195,7 @@ body {
   box-shadow: 0 4px 14px rgba(139, 92, 246, 0.4);
 }
 
-.modal-title-aesthetic {
+.task-modal-title {
   margin: 0;
   font-size: 20px;
   font-weight: 800;
@@ -1205,13 +1205,13 @@ body {
   -webkit-text-fill-color: transparent;
 }
 
-.light-theme .modal-title-aesthetic {
+.light-theme .task-modal-title {
   background: linear-gradient(90deg, #0F172A, #334155);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-.form-label-aesthetic {
+.task-form-label {
   font-size: 13px;
   font-weight: 700;
   color: var(--text-primary);
@@ -1221,8 +1221,8 @@ body {
   margin-bottom: 6px;
 }
 
-.form-input-aesthetic,
-.form-textarea-aesthetic {
+.task-form-input,
+.task-form-textarea {
   width: 100%;
   padding: 10px 14px;
   background: rgba(255, 255, 255, 0.04);
@@ -1236,14 +1236,14 @@ body {
   box-sizing: border-box;
 }
 
-.light-theme .form-input-aesthetic,
-.light-theme .form-textarea-aesthetic {
+.light-theme .task-form-input,
+.light-theme .task-form-textarea {
   background: rgba(0, 0, 0, 0.03);
   border: 1px solid rgba(0, 0, 0, 0.12);
 }
 
-.form-input-aesthetic:focus,
-.form-textarea-aesthetic:focus {
+.task-form-input:focus,
+.task-form-textarea:focus {
   border-color: var(--accent-purple);
   background: rgba(139, 92, 246, 0.06);
   box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.25);
@@ -1310,13 +1310,13 @@ body {
   filter: brightness(1.1);
 }
 
-.form-row-aesthetic {
+.task-form-row {
   display: flex;
   gap: 14px;
 }
 
 @media (max-width: 480px) {
-  .form-row-aesthetic {
+  .task-form-row {
     flex-direction: column;
   }
 }
@@ -1335,7 +1335,7 @@ body {
   filter: brightness(1.2);
 }
 
-.subtask-list-aesthetic {
+.subtask-list {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -1345,7 +1345,7 @@ body {
   padding-right: 4px;
 }
 
-.subtask-item-aesthetic {
+.subtask-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1358,7 +1358,7 @@ body {
   color: var(--text-primary);
 }
 
-.modal-footer-aesthetic {
+.task-modal-footer {
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -1853,9 +1853,7 @@ body {
 `;
 
 
-// ==========================================
-// 1. TYPES & INTERFACES
-// ==========================================
+// 1. Types & Interfaces
 export type Priority = 'low' | 'medium' | 'high' | 'urgent';
 export type Category = 'Work' | 'Personal' | 'Design' | 'Development' | 'Health' | 'Finance';
 export type TaskStatus = 'todo' | 'in_progress' | 'completed';
@@ -1904,9 +1902,7 @@ export interface DashboardStats {
 
 export type NavSection = 'dashboard' | 'tasks' | 'analytics' | 'categories' | 'settings';
 
-// ==========================================
-// 2. SIDEBAR COMPONENT
-// ==========================================
+// 2. Sidebar Navigation Component
 interface SidebarProps {
   activeSection: NavSection;
   onSelectSection: (section: NavSection) => void;
@@ -2039,9 +2035,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   );
 };
 
-// ==========================================
-// 3. HEADER COMPONENT
-// ==========================================
+// 3. Header Component
 interface HeaderProps {
   searchTerm?: string;
   onSearchChange?: (value: string) => void;
@@ -2259,9 +2253,7 @@ export const Header: React.FC<HeaderProps> = ({
   );
 };
 
-// ==========================================
-// 4. STATS CARDS COMPONENT
-// ==========================================
+// 4. Stats Cards Component
 interface StatsCardsProps {
   stats: DashboardStats;
 }
@@ -2341,9 +2333,7 @@ export const StatsCards: React.FC<StatsCardsProps> = ({ stats }) => {
   );
 };
 
-// ==========================================
-// 5. PRODUCTIVITY CHART COMPONENT
-// ==========================================
+// 5. Productivity Chart Component
 interface ProductivityChartProps {
   tasks: Task[];
 }export const ProductivityChart: React.FC<ProductivityChartProps> = ({ tasks }) => {
@@ -2573,9 +2563,7 @@ interface ProductivityChartProps {
   );
 };
 
-// ==========================================
-// 6. CATEGORY PROGRESS COMPONENT
-// ==========================================
+// 6. Category Progress Component
 interface CategoryProgressProps {
   tasks: Task[];
 }
@@ -2657,9 +2645,7 @@ export const CategoryProgress: React.FC<CategoryProgressProps> = ({ tasks }) => 
   );
 };
 
-// ==========================================
-// 6.5. WIDGET CAROUSEL COMPONENT (MOBILE & DESKTOP)
-// ==========================================
+// 6.5. Mobile & Desktop Widget Carousel
 interface WidgetCarouselProps {
   tasks: Task[];
 }
@@ -2717,9 +2703,7 @@ export const WidgetCarousel: React.FC<WidgetCarouselProps> = ({ tasks }) => {
   );
 };
 
-// ==========================================
-// 7. TASK FILTER TOOLBAR COMPONENT
-// ==========================================
+// 7. Task Filter Toolbar Component
 interface TaskFilterProps {
   filter: FilterState;
   onUpdateFilter: (updates: Partial<FilterState>) => void;
@@ -3074,9 +3058,7 @@ export const TaskList: React.FC<TaskListProps> = ({
   );
 };
 
-// ==========================================
-// 10. TASK MODAL COMPONENT
-// ==========================================
+// 10. Task Studio Modal Component
 interface TaskModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -3175,15 +3157,15 @@ export const TaskModal: React.FC<TaskModalProps> = ({
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-card modal-card-aesthetic" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-card task-modal-card" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
-        <div className="modal-header-aesthetic">
+        <div className="task-modal-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div className="modal-icon-badge">
               <Sparkles size={20} color="#FFFFFF" />
             </div>
             <div>
-              <h3 className="modal-title-aesthetic">
+              <h3 className="task-modal-title">
                 {taskToEdit ? 'Edit Task Details' : 'Create New Task'}
               </h3>
               <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: 'var(--text-secondary)' }}>
@@ -3200,12 +3182,12 @@ export const TaskModal: React.FC<TaskModalProps> = ({
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginTop: '16px' }}>
           {/* Title Input */}
           <div className="form-group">
-            <label className="form-label-aesthetic">
+            <label className="task-form-label">
               Task Title <span style={{ color: 'var(--accent-rose)' }}>*</span>
             </label>
             <input
               type="text"
-              className="form-input-aesthetic"
+              className="task-form-input"
               placeholder="e.g. Design landing page hero section..."
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -3216,9 +3198,9 @@ export const TaskModal: React.FC<TaskModalProps> = ({
 
           {/* Description Textarea */}
           <div className="form-group">
-            <label className="form-label-aesthetic">Description & Notes</label>
+            <label className="task-form-label">Description & Notes</label>
             <textarea
-              className="form-textarea-aesthetic"
+              className="task-form-textarea"
               rows={3}
               placeholder="Provide context, links, key deliverables, or requirements..."
               value={description}
@@ -3228,7 +3210,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
 
           {/* Priority Pill Selector */}
           <div className="form-group">
-            <label className="form-label-aesthetic">Priority Level</label>
+            <label className="task-form-label">Priority Level</label>
             <div className="priority-pill-grid">
               {priorities.map((p) => {
                 const isSelected = priority === p.value;
@@ -3263,7 +3245,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
 
           {/* Category Chip Selector */}
           <div className="form-group">
-            <label className="form-label-aesthetic">Category</label>
+            <label className="task-form-label">Category</label>
             <div className="category-pill-grid">
               {categories.map((cat) => {
                 const isSelected = category === cat.name;
@@ -3290,29 +3272,29 @@ export const TaskModal: React.FC<TaskModalProps> = ({
           </div>
 
           {/* Row: Due Date & Estimated Time */}
-          <div className="form-row-aesthetic">
+          <div className="task-form-row">
             <div className="form-group" style={{ flex: 1 }}>
-              <label className="form-label-aesthetic">
+              <label className="task-form-label">
                 <Calendar size={14} color="var(--accent-purple)" />
                 <span>Due Date</span>
               </label>
               <input
                 type="date"
-                className="form-input-aesthetic"
+                className="task-form-input"
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
               />
             </div>
 
             <div className="form-group" style={{ flex: 1 }}>
-              <label className="form-label-aesthetic">
+              <label className="task-form-label">
                 <Clock size={14} color="var(--accent-cyan)" />
                 <span>Est. Time (min)</span>
               </label>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <input
                   type="number"
-                  className="form-input-aesthetic"
+                  className="task-form-input"
                   min={5}
                   max={480}
                   value={estimatedMinutes}
@@ -3340,14 +3322,14 @@ export const TaskModal: React.FC<TaskModalProps> = ({
 
           {/* Subtasks Checklist */}
           <div className="form-group">
-            <label className="form-label-aesthetic">
+            <label className="task-form-label">
               <CheckSquare size={14} color="var(--accent-emerald)" />
               <span>Subtasks & Milestones</span>
             </label>
             <div style={{ display: 'flex', gap: '8px' }}>
               <input
                 type="text"
-                className="form-input-aesthetic"
+                className="task-form-input"
                 placeholder="Add subtask step..."
                 value={newSubtaskTitle}
                 onChange={(e) => setNewSubtaskTitle(e.target.value)}
@@ -3369,9 +3351,9 @@ export const TaskModal: React.FC<TaskModalProps> = ({
             </div>
 
             {subtasks.length > 0 && (
-              <div className="subtask-list-aesthetic">
+              <div className="subtask-list">
                 {subtasks.map((st) => (
-                  <div key={st.id} className="subtask-item-aesthetic">
+                  <div key={st.id} className="subtask-item">
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <CheckCircle2 size={16} color="var(--accent-emerald)" />
                       <span>{st.title}</span>
@@ -3391,7 +3373,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
           </div>
 
           {/* Modal Actions Footer */}
-          <div className="modal-footer-aesthetic">
+          <div className="task-modal-footer">
             <button type="button" className="btn-secondary" onClick={onClose} style={{ borderRadius: '12px', padding: '10px 20px' }}>
               Cancel
             </button>
@@ -3406,9 +3388,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
   );
 };
 
-// ==========================================
-// 11. MAIN DASHBOARD CONTAINER
-// ==========================================
+// 11. Main Dashboard Container
 const INITIAL_TASKS: Task[] = [];
 
 interface DashboardProps {
