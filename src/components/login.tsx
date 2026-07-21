@@ -411,12 +411,12 @@ const AUTH_STYLES = `
 
 .styled-input {
   width: 100%;
-  padding: 14px 16px 14px 48px;
+  padding: 10px 14px 10px 42px;
   background: rgba(15, 23, 42, 0.85);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
+  border-radius: 14px;
   color: #F8FAFC;
-  font-size: 14px;
+  font-size: 13px;
   font-family: inherit;
   outline: none;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -489,12 +489,12 @@ const AUTH_STYLES = `
 /* Submit & Social Buttons */
 .submit-btn-primary {
   width: 100%;
-  padding: 15px;
+  padding: 11px;
   background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
   border: none;
-  border-radius: 16px;
+  border-radius: 14px;
   color: #FFFFFF;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   font-family: inherit;
   cursor: pointer;

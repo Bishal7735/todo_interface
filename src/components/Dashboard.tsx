@@ -544,12 +544,12 @@ body {
 
 .header-search input {
   width: 100%;
-  padding: 10px 16px 10px 42px;
+  padding: 7px 14px 7px 38px;
   background: var(--bg-input);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   color: var(--text-primary);
-  font-size: 14px;
+  font-size: 13px;
   outline: none;
   transition: var(--transition-fast);
 }
@@ -578,10 +578,10 @@ body {
   background: var(--grad-primary);
   color: white;
   border: none;
-  padding: 10px 20px;
+  padding: 7px 16px;
   border-radius: var(--radius-md);
   font-weight: 700;
-  font-size: 14px;
+  font-size: 13px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -820,12 +820,12 @@ body {
 }
 
 .pill-btn {
-  padding: 8px 16px;
+  padding: 6px 12px;
   border-radius: 20px;
   border: 1px solid var(--border-color);
   background: var(--bg-input);
   color: var(--text-secondary);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   transition: var(--transition-fast);
@@ -850,12 +850,12 @@ body {
 }
 
 .select-input {
-  padding: 8px 14px;
+  padding: 6px 12px;
   background: var(--bg-input);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   color: var(--text-primary);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   outline: none;
   cursor: pointer;
@@ -1111,23 +1111,23 @@ body {
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
 }
 
 .form-label {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--text-secondary);
 }
 
 .form-input, .form-textarea, .form-select {
   width: 100%;
-  padding: 12px 16px;
+  padding: 8px 12px;
   background: var(--bg-input);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   color: var(--text-primary);
-  font-size: 14px;
+  font-size: 13px;
   outline: none;
   transition: var(--transition-fast);
 }
@@ -1140,24 +1140,25 @@ body {
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: 12px;
 }
 
 .modal-footer {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 12px;
-  margin-top: 12px;
+  gap: 10px;
+  margin-top: 8px;
 }
 
 .btn-secondary {
   background: var(--bg-input);
   color: var(--text-secondary);
   border: 1px solid var(--border-color);
-  padding: 10px 20px;
+  padding: 7px 16px;
   border-radius: var(--radius-md);
   font-weight: 600;
+  font-size: 13px;
   cursor: pointer;
   transition: var(--transition-fast);
 }
@@ -2276,7 +2277,6 @@ export const TaskModal: React.FC<TaskModalProps> = ({
   const [category, setCategory] = useState<Category>('Work');
   const [dueDate, setDueDate] = useState('');
   const [estimatedMinutes, setEstimatedMinutes] = useState(30);
-  const [tagsInput, setTagsInput] = useState('');
   const [subtasks, setSubtasks] = useState<{ id: string; title: string; completed: boolean }[]>([]);
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
 
@@ -2288,7 +2288,6 @@ export const TaskModal: React.FC<TaskModalProps> = ({
       setCategory(taskToEdit.category);
       setDueDate(taskToEdit.dueDate);
       setEstimatedMinutes(taskToEdit.estimatedMinutes || 30);
-      setTagsInput(taskToEdit.tags ? taskToEdit.tags.join(', ') : '');
       setSubtasks(taskToEdit.subtasks || []);
     } else {
       setTitle('');
@@ -2297,7 +2296,6 @@ export const TaskModal: React.FC<TaskModalProps> = ({
       setCategory('Work');
       setDueDate(new Date().toISOString().split('T')[0]);
       setEstimatedMinutes(30);
-      setTagsInput('');
       setSubtasks([]);
     }
   }, [taskToEdit, isOpen]);
@@ -2321,11 +2319,6 @@ export const TaskModal: React.FC<TaskModalProps> = ({
     e.preventDefault();
     if (!title.trim()) return;
 
-    const parsedTags = tagsInput
-      .split(',')
-      .map((t) => t.trim())
-      .filter((t) => t.length > 0);
-
     onSaveTask({
       id: taskToEdit?.id,
       title: title.trim(),
@@ -2337,7 +2330,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
       estimatedMinutes: Number(estimatedMinutes) || 30,
       subtasks,
       pinned: taskToEdit?.pinned || false,
-      tags: parsedTags,
+      tags: taskToEdit?.tags || [],
     });
 
     onClose();
@@ -2434,17 +2427,6 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                 onChange={(e) => setEstimatedMinutes(Number(e.target.value))}
               />
             </div>
-          </div>
-
-          <div className="form-group">
-            <label className="form-label">Tags (comma separated)</label>
-            <input
-              type="text"
-              className="form-input"
-              placeholder="e.g. Frontend, Review, Urgent"
-              value={tagsInput}
-              onChange={(e) => setTagsInput(e.target.value)}
-            />
           </div>
 
           <div className="form-group">

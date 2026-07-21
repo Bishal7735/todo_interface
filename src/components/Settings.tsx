@@ -245,7 +245,7 @@ export const Settings: React.FC<SettingsProps> = ({
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Bishal Roy"
-                  style={{ width: '100%', padding: '12px 14px 12px 42px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '12px', color: 'var(--text-primary)', outline: 'none' }}
+                  style={{ width: '100%', padding: '8px 12px 8px 38px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '12px', color: 'var(--text-primary)', outline: 'none', fontSize: '13px' }}
                 />
                 <UserIcon size={16} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
               </div>
@@ -260,7 +260,7 @@ export const Settings: React.FC<SettingsProps> = ({
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="alex@company.com"
-                  style={{ width: '100%', padding: '12px 14px 12px 42px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '12px', color: 'var(--text-primary)', outline: 'none' }}
+                  style={{ width: '100%', padding: '8px 12px 8px 38px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '12px', color: 'var(--text-primary)', outline: 'none', fontSize: '13px' }}
                 />
                 <Mail size={16} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
               </div>
@@ -277,7 +277,7 @@ export const Settings: React.FC<SettingsProps> = ({
                   value={role}
                   onChange={(e) => setRole(e.target.value)}
                   placeholder="e.g. Product Designer"
-                  style={{ width: '100%', padding: '12px 14px 12px 42px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '12px', color: 'var(--text-primary)', outline: 'none' }}
+                  style={{ width: '100%', padding: '8px 12px 8px 38px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '12px', color: 'var(--text-primary)', outline: 'none', fontSize: '13px' }}
                 />
                 <Briefcase size={16} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
               </div>
@@ -292,7 +292,7 @@ export const Settings: React.FC<SettingsProps> = ({
                   value={mobileNumber}
                   onChange={(e) => setMobileNumber(e.target.value)}
                   placeholder="e.g. +91 98765 43210"
-                  style={{ width: '100%', padding: '12px 14px 12px 42px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '12px', color: 'var(--text-primary)', outline: 'none' }}
+                  style={{ width: '100%', padding: '8px 12px 8px 38px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '12px', color: 'var(--text-primary)', outline: 'none', fontSize: '13px' }}
                 />
                 <Phone size={16} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
               </div>
@@ -314,12 +314,12 @@ export const Settings: React.FC<SettingsProps> = ({
           <button
             type="submit"
             style={{
-              padding: '14px 28px',
-              borderRadius: '14px',
+              padding: '9px 20px',
+              borderRadius: '12px',
               background: 'var(--grad-primary)',
               border: 'none',
               color: '#FFFFFF',
-              fontSize: '15px',
+              fontSize: '14px',
               fontWeight: 700,
               cursor: 'pointer',
               display: 'flex',
