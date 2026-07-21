@@ -1155,6 +1155,219 @@ body {
   animation: slideUp 0.25s cubic-bezier(0, 0, 0.2, 1);
 }
 
+/* Aesthetic Task Modal Studio Styling */
+.modal-card-aesthetic {
+  max-width: 640px !important;
+  border-radius: 24px !important;
+  background: rgba(15, 23, 42, 0.94) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 30px rgba(139, 92, 246, 0.25) !important;
+  padding: 24px 28px !important;
+  max-height: 90vh !important;
+  overflow-y: auto !important;
+}
+
+.light-theme .modal-card-aesthetic {
+  background: rgba(255, 255, 255, 0.96) !important;
+  border: 1px solid rgba(99, 102, 241, 0.2) !important;
+  box-shadow: 0 25px 50px -12px rgba(99, 102, 241, 0.25) !important;
+}
+
+.modal-header-aesthetic {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 4px;
+}
+
+.modal-icon-badge {
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  background: var(--grad-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.4);
+}
+
+.modal-title-aesthetic {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+  background: linear-gradient(90deg, #FFFFFF, #CBD5E1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.light-theme .modal-title-aesthetic {
+  background: linear-gradient(90deg, #0F172A, #334155);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.form-label-aesthetic {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.form-input-aesthetic,
+.form-textarea-aesthetic {
+  width: 100%;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  color: var(--text-primary);
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.light-theme .form-input-aesthetic,
+.light-theme .form-textarea-aesthetic {
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.form-input-aesthetic:focus,
+.form-textarea-aesthetic:focus {
+  border-color: var(--accent-purple);
+  background: rgba(139, 92, 246, 0.06);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.25);
+}
+
+.priority-pill-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+@media (max-width: 480px) {
+  .priority-pill-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.priority-pill-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 12px;
+  border-radius: 12px;
+  border: 1px solid;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.priority-pill-btn:hover {
+  transform: translateY(-1px);
+}
+
+.category-pill-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+@media (max-width: 480px) {
+  .category-pill-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.category-pill-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 12px;
+  border-radius: 12px;
+  border: 1px solid;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.category-pill-btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.1);
+}
+
+.form-row-aesthetic {
+  display: flex;
+  gap: 14px;
+}
+
+@media (max-width: 480px) {
+  .form-row-aesthetic {
+    flex-direction: column;
+  }
+}
+
+.preset-time-btn {
+  border: none;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.preset-time-btn:hover {
+  filter: brightness(1.2);
+}
+
+.subtask-list-aesthetic {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+  max-height: 140px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.subtask-item-aesthetic {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 8px 14px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.modal-footer-aesthetic {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin-top: 6px;
+}
+
 @keyframes slideUp {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
@@ -2942,25 +3155,58 @@ export const TaskModal: React.FC<TaskModalProps> = ({
     onClose();
   };
 
+  const categories: { name: Category; icon: any; color: string; gradient: string }[] = [
+    { name: 'Work', icon: Briefcase, color: '#6366F1', gradient: 'var(--grad-primary)' },
+    { name: 'Design', icon: Palette, color: '#8B5CF6', gradient: 'linear-gradient(135deg, #A855F7, #EC4899)' },
+    { name: 'Development', icon: Code, color: '#06B6D4', gradient: 'var(--grad-cyan)' },
+    { name: 'Personal', icon: UserIcon, color: '#10B981', gradient: 'var(--grad-emerald)' },
+    { name: 'Health', icon: HeartPulse, color: '#F43F5E', gradient: 'var(--grad-rose)' },
+    { name: 'Finance', icon: DollarSign, color: '#F59E0B', gradient: 'var(--grad-amber)' },
+  ];
+
+  const priorities: { value: Priority; label: string; color: string; badgeBg: string }[] = [
+    { value: 'low', label: 'Low', color: '#38BDF8', badgeBg: 'rgba(56, 189, 248, 0.15)' },
+    { value: 'medium', label: 'Medium', color: '#A855F7', badgeBg: 'rgba(168, 85, 247, 0.15)' },
+    { value: 'high', label: 'High', color: '#F97316', badgeBg: 'rgba(249, 115, 22, 0.15)' },
+    { value: 'urgent', label: 'Urgent', color: '#F43F5E', badgeBg: 'rgba(244, 63, 94, 0.15)' },
+  ];
+
+  const timePresets = [15, 30, 45, 60, 90, 120];
+
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-card" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <h3 className="modal-title">
-            {taskToEdit ? 'Edit Task' : 'Create New Task'}
-          </h3>
-          <button className="btn-icon-toggle" onClick={onClose}>
+      <div className="modal-card modal-card-aesthetic" onClick={(e) => e.stopPropagation()}>
+        {/* Header */}
+        <div className="modal-header-aesthetic">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div className="modal-icon-badge">
+              <Sparkles size={20} color="#FFFFFF" />
+            </div>
+            <div>
+              <h3 className="modal-title-aesthetic">
+                {taskToEdit ? 'Edit Task Details' : 'Create New Task'}
+              </h3>
+              <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: 'var(--text-secondary)' }}>
+                {taskToEdit ? 'Update your task roadmap and subtasks' : 'Add a new actionable item to your workspace roadmap'}
+              </p>
+            </div>
+          </div>
+          <button className="btn-icon-toggle" onClick={onClose} aria-label="Close modal">
             <X size={18} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        {/* Form Body */}
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginTop: '16px' }}>
+          {/* Title Input */}
           <div className="form-group">
-            <label className="form-label">Task Title *</label>
+            <label className="form-label-aesthetic">
+              Task Title <span style={{ color: 'var(--accent-rose)' }}>*</span>
+            </label>
             <input
               type="text"
-              className="form-input"
-              placeholder="What needs to be done?"
+              className="form-input-aesthetic"
+              placeholder="e.g. Design landing page hero section..."
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
@@ -2968,79 +3214,140 @@ export const TaskModal: React.FC<TaskModalProps> = ({
             />
           </div>
 
+          {/* Description Textarea */}
           <div className="form-group">
-            <label className="form-label">Description</label>
+            <label className="form-label-aesthetic">Description & Notes</label>
             <textarea
-              className="form-textarea"
+              className="form-textarea-aesthetic"
               rows={3}
-              placeholder="Add details, notes, or instructions..."
+              placeholder="Provide context, links, key deliverables, or requirements..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             />
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label className="form-label">Priority</label>
-              <select
-                className="form-select"
-                value={priority}
-                onChange={(e) => setPriority(e.target.value as Priority)}
-              >
-                <option value="low">🔵 Low</option>
-                <option value="medium">🟣 Medium</option>
-                <option value="high">🟠 High</option>
-                <option value="urgent">🔴 Urgent</option>
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Category</label>
-              <select
-                className="form-select"
-                value={category}
-                onChange={(e) => setCategory(e.target.value as Category)}
-              >
-                <option value="Work">Work</option>
-                <option value="Design">Design</option>
-                <option value="Development">Development</option>
-                <option value="Personal">Personal</option>
-                <option value="Health">Health</option>
-                <option value="Finance">Finance</option>
-              </select>
+          {/* Priority Pill Selector */}
+          <div className="form-group">
+            <label className="form-label-aesthetic">Priority Level</label>
+            <div className="priority-pill-grid">
+              {priorities.map((p) => {
+                const isSelected = priority === p.value;
+                return (
+                  <button
+                    key={p.value}
+                    type="button"
+                    className={`priority-pill-btn ${isSelected ? 'active' : ''}`}
+                    onClick={() => setPriority(p.value)}
+                    style={{
+                      borderColor: isSelected ? p.color : 'var(--border-color)',
+                      background: isSelected ? p.badgeBg : 'var(--bg-input)',
+                      color: isSelected ? '#FFFFFF' : 'var(--text-secondary)',
+                      boxShadow: isSelected ? `0 0 12px ${p.badgeBg}` : 'none',
+                    }}
+                  >
+                    <span
+                      style={{
+                        width: '8px',
+                        height: '8px',
+                        borderRadius: '50%',
+                        background: p.color,
+                        boxShadow: `0 0 6px ${p.color}`,
+                      }}
+                    />
+                    <span>{p.label}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label className="form-label">Due Date</label>
+          {/* Category Chip Selector */}
+          <div className="form-group">
+            <label className="form-label-aesthetic">Category</label>
+            <div className="category-pill-grid">
+              {categories.map((cat) => {
+                const isSelected = category === cat.name;
+                const Icon = cat.icon;
+                return (
+                  <button
+                    key={cat.name}
+                    type="button"
+                    className={`category-pill-btn ${isSelected ? 'active' : ''}`}
+                    onClick={() => setCategory(cat.name)}
+                    style={{
+                      background: isSelected ? cat.gradient : 'var(--bg-input)',
+                      color: isSelected ? '#FFFFFF' : 'var(--text-secondary)',
+                      borderColor: isSelected ? 'transparent' : 'var(--border-color)',
+                      boxShadow: isSelected ? `0 4px 14px ${cat.color}50` : 'none',
+                    }}
+                  >
+                    <Icon size={14} />
+                    <span>{cat.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Row: Due Date & Estimated Time */}
+          <div className="form-row-aesthetic">
+            <div className="form-group" style={{ flex: 1 }}>
+              <label className="form-label-aesthetic">
+                <Calendar size={14} color="var(--accent-purple)" />
+                <span>Due Date</span>
+              </label>
               <input
                 type="date"
-                className="form-input"
+                className="form-input-aesthetic"
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
               />
             </div>
 
-            <div className="form-group">
-              <label className="form-label">Est. Time (minutes)</label>
-              <input
-                type="number"
-                className="form-input"
-                min={5}
-                max={480}
-                value={estimatedMinutes}
-                onChange={(e) => setEstimatedMinutes(Number(e.target.value))}
-              />
+            <div className="form-group" style={{ flex: 1 }}>
+              <label className="form-label-aesthetic">
+                <Clock size={14} color="var(--accent-cyan)" />
+                <span>Est. Time (min)</span>
+              </label>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <input
+                  type="number"
+                  className="form-input-aesthetic"
+                  min={5}
+                  max={480}
+                  value={estimatedMinutes}
+                  onChange={(e) => setEstimatedMinutes(Number(e.target.value))}
+                />
+                <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                  {timePresets.map((preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      className="preset-time-btn"
+                      onClick={() => setEstimatedMinutes(preset)}
+                      style={{
+                        background: estimatedMinutes === preset ? 'var(--accent-indigo)' : 'var(--bg-input)',
+                        color: estimatedMinutes === preset ? '#FFFFFF' : 'var(--text-muted)',
+                      }}
+                    >
+                      {preset}m
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
 
+          {/* Subtasks Checklist */}
           <div className="form-group">
-            <label className="form-label">Subtasks Checklist</label>
+            <label className="form-label-aesthetic">
+              <CheckSquare size={14} color="var(--accent-emerald)" />
+              <span>Subtasks & Milestones</span>
+            </label>
             <div style={{ display: 'flex', gap: '8px' }}>
               <input
                 type="text"
-                className="form-input"
+                className="form-input-aesthetic"
                 placeholder="Add subtask step..."
                 value={newSubtaskTitle}
                 onChange={(e) => setNewSubtaskTitle(e.target.value)}
@@ -3053,34 +3360,27 @@ export const TaskModal: React.FC<TaskModalProps> = ({
               />
               <button
                 type="button"
-                className="btn-secondary"
+                className="btn-primary"
                 onClick={handleAddSubtask}
-                style={{ padding: '0 16px' }}
+                style={{ padding: '0 16px', borderRadius: '12px' }}
               >
                 <Plus size={16} />
               </button>
             </div>
 
             {subtasks.length > 0 && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '10px' }}>
+              <div className="subtask-list-aesthetic">
                 {subtasks.map((st) => (
-                  <div
-                    key={st.id}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      background: 'var(--bg-input)',
-                      padding: '8px 12px',
-                      borderRadius: 'var(--radius-sm)',
-                      fontSize: '13px',
-                    }}
-                  >
-                    <span>{st.title}</span>
+                  <div key={st.id} className="subtask-item-aesthetic">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <CheckCircle2 size={16} color="var(--accent-emerald)" />
+                      <span>{st.title}</span>
+                    </div>
                     <button
                       type="button"
                       className="action-btn"
                       onClick={() => handleRemoveSubtask(st.id)}
+                      title="Remove subtask"
                     >
                       <Trash2 size={14} color="var(--accent-rose)" />
                     </button>
@@ -3090,12 +3390,14 @@ export const TaskModal: React.FC<TaskModalProps> = ({
             )}
           </div>
 
-          <div className="modal-footer">
-            <button type="button" className="btn-secondary" onClick={onClose}>
+          {/* Modal Actions Footer */}
+          <div className="modal-footer-aesthetic">
+            <button type="button" className="btn-secondary" onClick={onClose} style={{ borderRadius: '12px', padding: '10px 20px' }}>
               Cancel
             </button>
-            <button type="submit" className="btn-primary">
-              {taskToEdit ? 'Save Changes' : 'Create Task'}
+            <button type="submit" className="btn-primary" style={{ borderRadius: '12px', padding: '10px 24px', fontWeight: 800 }}>
+              <Sparkles size={16} />
+              <span>{taskToEdit ? 'Save Changes' : 'Create Task'}</span>
             </button>
           </div>
         </form>
