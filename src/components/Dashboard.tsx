@@ -366,12 +366,12 @@ body {
 .stat-trend.urgent { color: var(--accent-rose); }
 
 .sidebar {
-  width: 260px;
+  width: 220px;
   background-color: var(--bg-secondary);
   border-right: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
-  padding: 24px 16px;
+  padding: 24px 12px;
   transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 100;
   overflow: hidden;
@@ -1444,6 +1444,7 @@ interface HeaderProps {
   onOpenNewTaskModal: () => void;
   darkMode: boolean;
   onToggleTheme: () => void;
+  tasks?: Task[];
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -1452,14 +1453,61 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenNewTaskModal,
   darkMode,
   onToggleTheme,
+  tasks = [],
 }) => {
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [readIds, setReadIds] = useState<string[]>([]);
+
+  // Compute dynamic notifications from current workspace tasks & activity
+  const dynamicNotifications = React.useMemo(() => {
+    const items: { id: string; title: string; message: string; time: string; type: 'urgent' | 'info' | 'success' }[] = [];
+    
+    const urgentTasks = tasks.filter((t) => t.priority === 'urgent' && t.status !== 'completed');
+    urgentTasks.forEach((t) => {
+      items.push({
+        id: `urgent-${t.id}`,
+        title: '🔴 Urgent Task Due',
+        message: `Task "${t.title}" is urgent and pending completion.`,
+        time: 'Active Alert',
+        type: 'urgent',
+      });
+    });
+
+    const completedTasks = tasks.filter((t) => t.status === 'completed');
+    if (completedTasks.length > 0) {
+      items.push({
+        id: 'completed-milestone',
+        title: '⚡ Productivity Streak',
+        message: `Awesome! You have completed ${completedTasks.length} tasks in your workspace.`,
+        time: 'Today',
+        type: 'success',
+      });
+    }
+
+    items.push({
+      id: 'welcome-tip',
+      title: '✨ Live Intelligence Active',
+      message: 'Active tab focus duration is automatically tracked and saved in your database.',
+      time: 'System',
+      type: 'info',
+    });
+
+    return items;
+  }, [tasks]);
+
+  const unreadCount = dynamicNotifications.filter((n) => !readIds.includes(n.id)).length;
+
+  const handleMarkAllRead = () => {
+    setReadIds(dynamicNotifications.map((n) => n.id));
+  };
+
   return (
     <header className="header">
       <div className="header-search">
         <Search className="search-icon" size={18} />
         <input
           type="text"
-          placeholder="Search tasks, tags, or categories..."
+          placeholder="Search by task name, tag, or category..."
           value={searchTerm}
           onChange={(e) => onSearchChange(e.target.value)}
         />
@@ -1479,21 +1527,116 @@ export const Header: React.FC<HeaderProps> = ({
           {darkMode ? <Sun size={19} /> : <Moon size={19} />}
         </button>
 
-        <button className="btn-icon-toggle" style={{ position: 'relative' }} title="Notifications">
-          <Bell size={19} />
-          <span
-            style={{
-              position: 'absolute',
-              top: '8px',
-              right: '8px',
-              width: '8px',
-              height: '8px',
-              borderRadius: '50%',
-              backgroundColor: 'var(--accent-rose)',
-              boxShadow: '0 0 8px var(--accent-rose)'
-            }}
-          />
-        </button>
+        <div style={{ position: 'relative' }}>
+          <button
+            className="btn-icon-toggle"
+            onClick={() => setShowNotifications(!showNotifications)}
+            title="Notifications"
+            style={{ position: 'relative' }}
+          >
+            <Bell size={19} />
+            {unreadCount > 0 && (
+              <span
+                style={{
+                  position: 'absolute',
+                  top: '2px',
+                  right: '2px',
+                  minWidth: '16px',
+                  height: '16px',
+                  borderRadius: '10px',
+                  backgroundColor: 'var(--accent-rose)',
+                  color: '#FFFFFF',
+                  fontSize: '10px',
+                  fontWeight: 800,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '0 4px',
+                  boxShadow: '0 0 8px var(--accent-rose)',
+                }}
+              >
+                {unreadCount}
+              </span>
+            )}
+          </button>
+
+          {showNotifications && (
+            <div
+              className="glass-panel"
+              style={{
+                position: 'absolute',
+                top: '48px',
+                right: 0,
+                width: '320px',
+                maxHeight: '400px',
+                overflowY: 'auto',
+                padding: '16px',
+                borderRadius: '16px',
+                zIndex: 1000,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '12px',
+                boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+                border: '1px solid var(--border-color)',
+                background: 'var(--bg-secondary)',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text-primary)' }}>
+                  Workspace Notifications
+                </span>
+                {unreadCount > 0 && (
+                  <button
+                    onClick={handleMarkAllRead}
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      color: 'var(--accent-purple)',
+                      fontSize: '11px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Mark all read
+                  </button>
+                )}
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {dynamicNotifications.map((item) => {
+                  const isRead = readIds.includes(item.id);
+                  return (
+                    <div
+                      key={item.id}
+                      onClick={() => setReadIds((prev) => [...prev, item.id])}
+                      style={{
+                        padding: '10px 12px',
+                        borderRadius: '10px',
+                        background: isRead ? 'rgba(255, 255, 255, 0.02)' : 'var(--bg-input)',
+                        border: '1px solid var(--border-color)',
+                        opacity: isRead ? 0.65 : 1,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '4px',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span style={{ fontSize: '12px', fontWeight: 700, color: item.type === 'urgent' ? '#F43F5E' : item.type === 'success' ? '#34D399' : 'var(--accent-cyan)' }}>
+                          {item.title}
+                        </span>
+                        <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{item.time}</span>
+                      </div>
+                      <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>
+                        {item.message}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );
@@ -2812,6 +2955,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, onUpdateUs
       return true;
     })
     .sort((a, b) => {
+      // Prioritize task name / title matches when search query is typed
+      if (filter.search.trim()) {
+        const q = filter.search.trim().toLowerCase();
+        const aTitleMatch = a.title.toLowerCase().includes(q);
+        const bTitleMatch = b.title.toLowerCase().includes(q);
+        if (aTitleMatch && !bTitleMatch) return -1;
+        if (!aTitleMatch && bTitleMatch) return 1;
+      }
+
       if (filter.sortBy === 'priority') {
         const pMap = { urgent: 4, high: 3, medium: 2, low: 1 };
         return pMap[b.priority] - pMap[a.priority];
@@ -2856,6 +3008,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, onUpdateUs
           onOpenNewTaskModal={handleOpenNewTaskModal}
           darkMode={darkMode}
           onToggleTheme={() => setDarkMode(!darkMode)}
+          tasks={tasks}
         />
 
         <div className="dashboard-content">
