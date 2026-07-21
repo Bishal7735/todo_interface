@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { api, getToken } from './api';
+import { api, getToken } from './interpreter';
 
 const STORAGE_KEY = 'listify_tab_focus_time_v1';
 

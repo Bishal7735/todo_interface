@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import type { User } from '../types/todo';
-import { api } from '../services/api';
+import { api } from '../services/interpreter';
 import { Settings as SettingsComponent } from './Settings';
 import { Analytics as AnalyticsComponent } from './Analytics';
 import { Tasks as TasksComponent } from './Tasks';
@@ -250,7 +250,7 @@ body {
 }
 
 .welcome-banner {
-  padding: 28px 32px;
+  padding: 10px 32px;
   background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.15) 50%, rgba(6, 182, 212, 0.1) 100%);
   border: 1px solid rgba(99, 102, 241, 0.25);
   border-radius: var(--radius-lg);
@@ -367,7 +367,7 @@ body {
 .stat-trend.urgent { color: var(--accent-rose); }
 
 .sidebar {
-  width: 220px;
+  width: 200px;
   background-color: var(--bg-secondary);
   border-right: 1px solid var(--border-color);
   display: flex;
@@ -723,8 +723,8 @@ body {
   gap: 10px;
   padding: 12px;
   border-radius: var(--radius-md);
-  background: rgba(99, 102, 241, 0.08);
-  border: 1px solid rgba(99, 102, 241, 0.15);
+  // background: rgba(99, 102, 241, 0.08);
+  // border: 1px solid rgba(99, 102, 241, 0.15);
   cursor: pointer;
   transition: var(--transition-fast);
   overflow: hidden;
@@ -1709,7 +1709,7 @@ export const Header: React.FC<HeaderProps> = ({
   // Compute dynamic notifications from current workspace tasks & activity
   const dynamicNotifications = React.useMemo(() => {
     const items: { id: string; title: string; message: string; time: string; type: 'urgent' | 'info' | 'success' }[] = [];
-    
+
     const urgentTasks = tasks.filter((t) => t.priority === 'urgent' && t.status !== 'completed');
     urgentTasks.forEach((t) => {
       items.push({
@@ -3101,8 +3101,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, onUpdateUs
     const fetchBackendTasks = async () => {
       try {
         const remoteTasks = await api.getAllTasks();
-        if (remoteTasks && Array.isArray(remoteTasks)) {
-          setTasks(remoteTasks);
+        if (remoteTasks && Array.isArray(remoteTasks) && remoteTasks.length > 0) {
+          setTasks((prevTasks) => {
+            const remoteIds = new Set(remoteTasks.map((t) => t.id));
+            const localOnly = prevTasks.filter((t) => !remoteIds.has(t.id));
+            return [...remoteTasks, ...localOnly];
+          });
         }
       } catch (err) {
         console.warn('Could not fetch backend tasks, using local cache:', err);

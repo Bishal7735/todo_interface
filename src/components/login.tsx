@@ -17,7 +17,7 @@ import {
   X
 } from 'lucide-react';
 import type { User } from '../types/todo';
-import { api } from '../services/api';
+import { api } from '../services/interpreter';
 
 interface AuthProps {
   onLoginSuccess: (user: User) => void;

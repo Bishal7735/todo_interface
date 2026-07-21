@@ -4,7 +4,7 @@ import { LandingPage } from './landing/LandingPage';
 import { Dashboard } from './components/Dashboard';
 import { AuthPage } from './components/Login';
 import type { User } from './types/todo';
-import { removeTokens } from './services/api';
+import { removeTokens } from './services/interpreter';
 
 function App() {
   const navigate = useNavigate();
