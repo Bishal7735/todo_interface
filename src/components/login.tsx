@@ -13,7 +13,8 @@ import {
   Zap,
   TrendingUp,
   Flame,
-  Phone
+  Phone,
+  X
 } from 'lucide-react';
 import type { User } from '../types/todo';
 import { api } from '../services/api';
@@ -29,17 +30,18 @@ const AUTH_STYLES = `
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap');
 
 .auth-viewport {
-  min-height: 100vh;
+  height: 100vh;
+  max-height: 100vh;
   width: 100vw;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #070913;
+  background: #000000 !important;
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   color: #F8FAFC;
   position: relative;
-  overflow-x: hidden;
-  padding: 32px 20px;
+  overflow: hidden;
+  padding: 16px 20px;
 }
 
 /* Ambient Glowing Aurora Background Orbs */
@@ -49,6 +51,7 @@ const AUTH_STYLES = `
   overflow: hidden;
   pointer-events: none;
   z-index: 0;
+  opacity: 0.15;
 }
 
 .aurora-orb {
@@ -109,20 +112,21 @@ const AUTH_STYLES = `
 /* Split Screen Layout Container */
 .auth-container {
   width: 100%;
-  max-width: 1160px;
+  max-width: 1100px;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 48px;
+  gap: 36px;
   align-items: center;
   position: relative;
   z-index: 10;
+  max-height: calc(100vh - 32px);
 }
 
 @media (max-width: 960px) {
   .auth-container {
     grid-template-columns: 1fr;
-    max-width: 480px;
-    gap: 32px;
+    max-width: 460px;
+    gap: 24px;
   }
 }
 
@@ -130,7 +134,7 @@ const AUTH_STYLES = `
 .auth-hero {
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 16px;
 }
 
 @media (max-width: 960px) {
@@ -143,12 +147,12 @@ const AUTH_STYLES = `
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 14px;
+  padding: 5px 12px;
   border-radius: 30px;
   background: rgba(139, 92, 246, 0.12);
   border: 1px solid rgba(139, 92, 246, 0.3);
   color: #A78BFA;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.5px;
   text-transform: uppercase;
@@ -158,7 +162,7 @@ const AUTH_STYLES = `
 
 .hero-title {
   font-family: 'Outfit', sans-serif;
-  font-size: 46px;
+  font-size: 36px;
   font-weight: 800;
   line-height: 1.15;
   letter-spacing: -1px;
@@ -172,27 +176,27 @@ const AUTH_STYLES = `
 }
 
 .hero-subtitle {
-  font-size: 16px;
-  line-height: 1.6;
+  font-size: 14px;
+  line-height: 1.5;
   color: #94A3B8;
-  max-width: 480px;
+  max-width: 460px;
 }
 
 .hero-features {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  margin-top: 8px;
+  gap: 10px;
+  margin-top: 4px;
 }
 
 .hero-feature-item {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  padding: 14px 18px;
-  border-radius: 16px;
+  padding: 10px 14px;
+  border-radius: 12px;
   backdrop-filter: blur(12px);
   transition: all 0.3s ease;
 }
@@ -204,9 +208,9 @@ const AUTH_STYLES = `
 }
 
 .hero-icon-box {
-  width: 38px;
-  height: 38px;
-  border-radius: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -220,13 +224,13 @@ const AUTH_STYLES = `
 }
 
 .hero-feature-title {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   color: #F8FAFC;
 }
 
 .hero-feature-desc {
-  font-size: 12px;
+  font-size: 11px;
   color: #64748B;
 }
 
@@ -235,12 +239,12 @@ const AUTH_STYLES = `
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 20px;
+  padding: 12px 16px;
   background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
+  border-radius: 16px;
   backdrop-filter: blur(20px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
 }
 
 .widget-user-group {
@@ -255,17 +259,17 @@ const AUTH_STYLES = `
 }
 
 .avatar-stack-item {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   border: 2px solid #0F172A;
   background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
-  margin-left: -8px;
+  margin-left: -6px;
 }
 
 .avatar-stack-item:first-child {
@@ -277,26 +281,26 @@ const AUTH_STYLES = `
   align-items: center;
   gap: 4px;
   color: #F59E0B;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
 }
 
 /* Glassmorphism Auth Card */
 .auth-card-wrapper {
-  background: rgba(15, 23, 42, 0.75);
+  background: rgba(10, 15, 26, 0.85);
   backdrop-filter: blur(32px);
   -webkit-backdrop-filter: blur(32px);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 32px;
-  padding: 44px;
-  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.65), 0 0 40px rgba(139, 92, 246, 0.2);
+  border-radius: 24px;
+  padding: 24px 32px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.8), 0 0 40px rgba(139, 92, 246, 0.15);
   position: relative;
   transition: all 0.35s ease;
 }
 
 .auth-card-wrapper:hover {
   border-color: rgba(139, 92, 246, 0.35);
-  box-shadow: 0 40px 96px rgba(0, 0, 0, 0.75), 0 0 50px rgba(139, 92, 246, 0.3);
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.9), 0 0 50px rgba(139, 92, 246, 0.25);
 }
 
 .auth-brand-header {
@@ -304,32 +308,32 @@ const AUTH_STYLES = `
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 10px;
-  margin-bottom: 32px;
+  gap: 6px;
+  margin-bottom: 16px;
 }
 
 .auth-logo-badge {
-  width: 54px;
-  height: 54px;
-  border-radius: 18px;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
   background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   color: #FFFFFF;
-  box-shadow: 0 10px 28px rgba(99, 102, 241, 0.45);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
 }
 
 .auth-brand-title {
   font-family: 'Outfit', sans-serif;
-  font-size: 28px;
+  font-size: 22px;
   font-weight: 800;
   letter-spacing: -0.5px;
   color: #FFFFFF;
 }
 
 .auth-brand-subtitle {
-  font-size: 13px;
+  font-size: 12px;
   color: #94A3B8;
 }
 
@@ -337,35 +341,35 @@ const AUTH_STYLES = `
 .auth-segmented-control {
   display: flex;
   background: rgba(255, 255, 255, 0.04);
-  padding: 6px;
-  border-radius: 18px;
+  padding: 4px;
+  border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  margin-bottom: 32px;
+  margin-bottom: 16px;
   position: relative;
 }
 
 .segmented-btn {
   flex: 1;
-  padding: 12px;
+  padding: 8px 12px;
   border: none;
   background: transparent;
   color: #94A3B8;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
-  border-radius: 14px;
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .segmented-btn.active {
   background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
   color: #FFFFFF;
   font-weight: 700;
-  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.4);
 }
 
 .segmented-btn:hover:not(.active) {
@@ -377,13 +381,13 @@ const AUTH_STYLES = `
 .auth-form-body {
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 12px;
 }
 
 .input-field-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
 }
 
 .field-label {
@@ -607,16 +611,87 @@ const AUTH_STYLES = `
   75% { transform: translateX(4px); }
 }
 
-.auth-card-footer {
-  margin-top: 28px;
-  text-align: center;
-  font-size: 12px;
-  color: #64748B;
+.auth-toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 10px;
+  pointer-events: none;
+  max-width: calc(100vw - 32px);
+}
+
+.auth-toast-item {
+  pointer-events: auto;
+  min-width: 280px;
+  max-width: 380px;
+  padding: 14px 18px;
+  border-radius: 16px;
+  background: rgba(16, 185, 129, 0.18);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(52, 211, 153, 0.5);
+  box-shadow: 0 10px 25px rgba(16, 185, 129, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  animation: toastSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  color: #ECFDF5;
+}
+
+.auth-toast-item.error {
+  background: rgba(244, 63, 94, 0.18);
+  border: 1px solid rgba(244, 63, 94, 0.5);
+  box-shadow: 0 10px 25px rgba(244, 63, 94, 0.25);
+  color: #FFE4E6;
+}
+
+.auth-toast-item.info {
+  background: rgba(6, 182, 212, 0.18);
+  border: 1px solid rgba(6, 182, 212, 0.5);
+  box-shadow: 0 10px 25px rgba(6, 182, 212, 0.25);
+  color: #E0F2FE;
+}
+
+@media (max-width: 600px) {
+  .auth-toast-container {
+    bottom: 16px;
+    right: 16px;
+    left: 16px;
+  }
+  .auth-toast-item {
+    min-width: unset;
+    width: 100%;
+    max-width: 100%;
+  }
 }
 `;
 
+export interface AuthToast {
+  id: string;
+  title: string;
+  message: string;
+  type: 'success' | 'error' | 'info';
+}
+
 export const AuthPage: React.FC<AuthProps> = ({ onLoginSuccess }) => {
   const [mode, setMode] = useState<'login' | 'register'>('login');
+  const [toasts, setToasts] = useState<AuthToast[]>([]);
+
+  const addToast = (title: string, message: string, type: 'success' | 'error' | 'info' = 'success') => {
+    const newToast: AuthToast = { id: Date.now().toString() + Math.random().toString(), title, message, type };
+    setToasts((prev) => [...prev.slice(-3), newToast]);
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== newToast.id));
+    }, 4000);
+  };
+
+  const removeToast = (id: string) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  };
 
   return (
     <div className="auth-viewport">
@@ -631,6 +706,39 @@ export const AuthPage: React.FC<AuthProps> = ({ onLoginSuccess }) => {
 
       {/* Subtle Grid Background Overlay */}
       <div className="auth-grid-overlay" />
+
+      {/* Light Green Landing Page Toast Notifications */}
+      <div className="auth-toast-container">
+        {toasts.map((toast) => (
+          <div key={toast.id} className={`auth-toast-item ${toast.type}`}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div
+                style={{
+                  width: '28px',
+                  height: '28px',
+                  borderRadius: '8px',
+                  background: toast.type === 'error' ? 'rgba(244, 63, 94, 0.25)' : toast.type === 'info' ? 'rgba(6, 182, 212, 0.25)' : 'rgba(52, 211, 153, 0.25)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                {toast.type === 'error' ? <AlertCircle size={16} color="#FB7185" /> : <CheckCircle2 size={16} color="#34D399" />}
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <span style={{ fontSize: '13px', fontWeight: 700 }}>{toast.title}</span>
+                <span style={{ fontSize: '11px', opacity: 0.9 }}>{toast.message}</span>
+              </div>
+            </div>
+            <button
+              onClick={() => removeToast(toast.id)}
+              style={{ background: 'transparent', border: 'none', color: 'currentColor', opacity: 0.7, cursor: 'pointer', padding: '2px' }}
+            >
+              <X size={14} />
+            </button>
+          </div>
+        ))}
+      </div>
 
       <div className="auth-container">
         {/* Left Hero Section */}
@@ -733,17 +841,15 @@ export const AuthPage: React.FC<AuthProps> = ({ onLoginSuccess }) => {
             <LoginSection
               onLoginSuccess={onLoginSuccess}
               onSwitchToRegister={() => setMode('register')}
+              addToast={addToast}
             />
           ) : (
             <RegisterSection
               onLoginSuccess={onLoginSuccess}
               onSwitchToLogin={() => setMode('login')}
+              addToast={addToast}
             />
           )}
-
-          <div className="auth-card-footer">
-            Protected by ListiFy 2.0 Security • Encrypted Session
-          </div>
         </div>
       </div>
     </div>
@@ -757,11 +863,13 @@ export const AuthPage: React.FC<AuthProps> = ({ onLoginSuccess }) => {
 interface LoginSectionProps {
   onLoginSuccess: (user: User) => void;
   onSwitchToRegister: () => void;
+  addToast?: (title: string, message: string, type?: 'success' | 'error' | 'info') => void;
 }
 
 export const LoginSection: React.FC<LoginSectionProps> = ({
   onLoginSuccess,
   onSwitchToRegister,
+  addToast,
 }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -773,7 +881,9 @@ export const LoginSection: React.FC<LoginSectionProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim() || !password.trim()) {
-      setError('Please enter both email and password.');
+      const msg = 'Please enter both email and password.';
+      setError(msg);
+      addToast?.('⚠️ Missing Information', msg, 'error');
       return;
     }
 
@@ -798,10 +908,15 @@ export const LoginSection: React.FC<LoginSectionProps> = ({
         avatarInitials: initials,
       };
 
-      onLoginSuccess(loggedUser);
+      addToast?.('🎉 Login Successful!', `Welcome back, ${nameFromApi}! Redirecting...`, 'success');
+      setTimeout(() => {
+        onLoginSuccess(loggedUser);
+      }, 500);
     } catch (err: any) {
       console.warn('API Login failed:', err);
-      setError(err.message || 'Login failed. Incorrect email or password.');
+      const errMsg = err.message || 'Login failed. Incorrect email or password.';
+      setError(errMsg);
+      addToast?.('⚠️ Login Failed', errMsg, 'error');
     } finally {
       setLoading(false);
     }
@@ -842,7 +957,7 @@ export const LoginSection: React.FC<LoginSectionProps> = ({
             style={{ fontSize: '12px' }}
             onClick={(e) => {
               e.preventDefault();
-              alert('A password reset link has been sent to your email address!');
+              addToast?.('📧 Password Reset Sent', 'A password reset link has been sent to your email address.', 'info');
             }}
           >
             Forgot password?
@@ -910,11 +1025,13 @@ export const LoginSection: React.FC<LoginSectionProps> = ({
 interface RegisterSectionProps {
   onLoginSuccess: (user: User) => void;
   onSwitchToLogin: () => void;
+  addToast?: (title: string, message: string, type?: 'success' | 'error' | 'info') => void;
 }
 
 export const RegisterSection: React.FC<RegisterSectionProps> = ({
   onLoginSuccess,
   onSwitchToLogin,
+  addToast,
 }) => {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -928,15 +1045,21 @@ export const RegisterSection: React.FC<RegisterSectionProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!fullName.trim() || !email.trim() || !password.trim()) {
-      setError('Please fill in all required fields.');
+      const msg = 'Please fill in all required fields.';
+      setError(msg);
+      addToast?.('⚠️ Missing Required Fields', msg, 'error');
       return;
     }
     if (!acceptTerms) {
-      setError('You must accept the terms of service.');
+      const msg = 'You must accept the terms of service.';
+      setError(msg);
+      addToast?.('⚠️ Terms of Service', msg, 'error');
       return;
     }
     if (password.length < 6) {
-      setError('Password must be at least 6 characters.');
+      const msg = 'Password must be at least 6 characters.';
+      setError(msg);
+      addToast?.('⚠️ Weak Password', msg, 'error');
       return;
     }
 
@@ -962,10 +1085,15 @@ export const RegisterSection: React.FC<RegisterSectionProps> = ({
         avatarInitials: initials,
       };
 
-      onLoginSuccess(newUser);
+      addToast?.('✨ Account Created!', `Welcome to ListiFy 2.0, ${nameFromApi}!`, 'success');
+      setTimeout(() => {
+        onLoginSuccess(newUser);
+      }, 500);
     } catch (err: any) {
       console.warn('API Registration failed:', err);
-      setError(err.message || 'Registration failed. Please try again.');
+      const errMsg = err.message || 'Registration failed. Please try again.';
+      setError(errMsg);
+      addToast?.('⚠️ Registration Failed', errMsg, 'error');
     } finally {
       setLoading(false);
     }

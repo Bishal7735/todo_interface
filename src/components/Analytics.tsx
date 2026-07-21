@@ -203,7 +203,7 @@ export const Analytics: React.FC<AnalyticsProps> = ({ tasks }) => {
       </div>
 
       {/* Main Grid: Weekly Task & Completion Graph & Category Breakdown */}
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
+      <div className="widgets-grid">
         {/* Weekly Productivity Bar Chart */}
         <div
           className="glass-panel"

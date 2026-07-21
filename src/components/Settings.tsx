@@ -118,6 +118,8 @@ export const Settings: React.FC<SettingsProps> = ({
             borderRadius: '14px',
             border: '1px solid var(--border-color)',
             gap: '4px',
+            flexWrap: 'wrap',
+            maxWidth: '100%',
           }}
         >
           <button
@@ -210,7 +212,7 @@ export const Settings: React.FC<SettingsProps> = ({
       {activeTab === 'profile' && (
         <form onSubmit={handleSaveProfile} style={{ display: 'flex', flexDirection: 'column', gap: '22px', maxWidth: '720px' }}>
           {/* Avatar Preview */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px', padding: '16px', background: 'var(--bg-input)', borderRadius: '18px', border: '1px solid var(--border-color)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px', padding: '16px', background: 'var(--bg-input)', borderRadius: '18px', border: '1px solid var(--border-color)', flexWrap: 'wrap' }}>
             <div
               style={{
                 width: '64px',
@@ -235,7 +237,7 @@ export const Settings: React.FC<SettingsProps> = ({
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <label style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-secondary)' }}>Full Name</label>
               <div style={{ position: 'relative' }}>
@@ -267,7 +269,7 @@ export const Settings: React.FC<SettingsProps> = ({
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <label style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-secondary)' }}>Job Title / Role</label>
               <div style={{ position: 'relative' }}>

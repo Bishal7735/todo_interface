@@ -54,6 +54,7 @@ import {
   ChevronLeft,
   ChevronRight,
   LogOut,
+  MoreVertical,
 } from 'lucide-react';
 
 // ==========================================
@@ -538,6 +539,65 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 20px;
+}
+
+.header-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mobile-three-dots-btn {
+  display: none !important;
+}
+
+.mobile-header-brand {
+  display: none !important;
+}
+
+.mobile-sidebar-close-btn {
+  display: none !important;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  margin-left: auto;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-sidebar-close-btn:hover {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+}
+
+.sidebar-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.sidebar-backdrop.active {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .header-search {
@@ -1222,6 +1282,55 @@ body {
   color: var(--accent-indigo);
 }
 
+@keyframes toastSlideIn {
+  from {
+    transform: translateY(20px) scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 10px;
+  pointer-events: none;
+  max-width: calc(100vw - 32px);
+}
+
+.toast-item {
+  pointer-events: auto;
+  min-width: 280px;
+  max-width: 380px;
+  padding: 14px 18px;
+  border-radius: 16px;
+  background: rgba(16, 185, 129, 0.15);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(52, 211, 153, 0.45);
+  box-shadow: 0 10px 25px rgba(16, 185, 129, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  animation: toastSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  color: #ECFDF5;
+}
+
+.light-theme .toast-item {
+  background: rgba(209, 250, 229, 0.95);
+  border: 1px solid #34D399;
+  color: #065F46;
+  box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2);
+}
+
 @media (max-width: 1200px) {
   .widgets-grid {
     grid-template-columns: 3fr 2fr;
@@ -1239,32 +1348,148 @@ body {
 }
 
 @media (max-width: 768px) {
-  .dashboard-container {
-    flex-direction: column;
+  .mobile-three-dots-btn {
+    display: flex !important;
   }
+  .mobile-header-brand {
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+  }
+  .mobile-sidebar-close-btn {
+    display: flex !important;
+  }
+
   .sidebar {
-    width: 100%;
-    border-right: none;
-    border-bottom: 1px solid var(--border-color);
-    padding: 16px;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    width: 280px !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    z-index: 1000 !important;
+    transform: translateX(-100%) !important;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: 0 0 35px rgba(0, 0, 0, 0.5) !important;
+    border-right: 1px solid var(--border-color) !important;
+    border-bottom: none !important;
+    padding: 20px 16px !important;
+    background-color: var(--bg-secondary) !important;
+    overflow-y: auto !important;
   }
+
+  .sidebar.mobile-open {
+    transform: translateX(0) !important;
+  }
+
+  .sidebar.collapsed {
+    width: 280px !important;
+  }
+
+  .sidebar-collapse-btn {
+    display: none !important;
+  }
+
+  .header {
+    padding: 12px 16px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .header-search {
+    width: 100% !important;
+    order: 2;
+  }
+
+  .header-actions {
+    margin-left: auto;
+  }
+
+  .header-top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    order: 1;
+  }
+
   .dashboard-content {
     padding: 16px;
+    gap: 20px;
   }
-  .header-search {
-    width: 200px;
-  }
+
   .welcome-banner {
     flex-direction: column;
     align-items: flex-start;
     gap: 16px;
+    padding: 20px;
   }
-  .chart-stat-chips {
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px;
+  }
+
+  .widgets-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px;
+  }
+
+  .tasks-grid {
+    grid-template-columns: 1fr !important;
+    gap: 14px;
+  }
+
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .filter-pills {
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: 6px;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+  }
+
+  .filter-controls {
+    flex-wrap: wrap;
     gap: 8px;
   }
-  .chart-wrapper {
-    min-height: 200px;
-    height: clamp(180px, 45vw, 240px);
+
+  .filter-controls .select-input {
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .toast-container {
+    bottom: 16px !important;
+    right: 16px !important;
+    left: 16px !important;
+    max-width: calc(100vw - 32px) !important;
+  }
+
+  .toast-item {
+    min-width: unset !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .btn-primary span {
+    display: none;
+  }
+  .btn-primary {
+    padding: 8px 12px;
   }
 }
 `;
@@ -1331,6 +1556,8 @@ interface SidebarProps {
   completedCount: number;
   user?: User | null;
   onLogout?: () => void;
+  mobileOpen?: boolean;
+  onCloseMobile?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -1340,6 +1567,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   completedCount,
   user,
   onLogout,
+  mobileOpen = false,
+  onCloseMobile,
 }) => {
   const [collapsed, setCollapsed] = React.useState(false);
   const pendingCount = totalCount - completedCount;
@@ -1354,20 +1583,35 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'settings', label: 'Settings', icon: Settings, badge: null },
   ];
 
+  const handleNavClick = (sectionId: NavSection) => {
+    onSelectSection(sectionId);
+    if (onCloseMobile) {
+      onCloseMobile();
+    }
+  };
+
   return (
-    <aside className={`sidebar${collapsed ? ' collapsed' : ''}`}>
-
-
-      {/* Logo */}
+    <aside className={`sidebar${collapsed ? ' collapsed' : ''}${mobileOpen ? ' mobile-open' : ''}`}>
+      {/* Logo & Mobile Close */}
       <div className="sidebar-logo">
         <div className="logo-icon" style={{ flexShrink: 0 }}>
           <Sparkles size={22} />
         </div>
-        {!collapsed && (
+        {(!collapsed || mobileOpen) && (
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <span className="logo-text">ListiFy 2.0</span>
             <span className="logo-subtitle" style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600 }}>Pro Workspace</span>
           </div>
+        )}
+        {onCloseMobile && (
+          <button
+            className="mobile-sidebar-close-btn"
+            onClick={onCloseMobile}
+            title="Close Menu"
+            aria-label="Close navigation sidebar"
+          >
+            <X size={20} />
+          </button>
         )}
       </div>
 
@@ -1380,14 +1624,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <li key={item.id}>
               <button
                 className={`nav-item-btn ${isActive ? 'active' : ''}`}
-                onClick={() => onSelectSection(item.id as NavSection)}
-                title={collapsed ? item.label : undefined}
+                onClick={() => handleNavClick(item.id as NavSection)}
+                title={collapsed && !mobileOpen ? item.label : undefined}
               >
                 <div className="nav-item-content">
                   <Icon size={19} />
-                  {!collapsed && <span className="nav-label">{item.label}</span>}
+                  {(!collapsed || mobileOpen) && <span className="nav-label">{item.label}</span>}
                 </div>
-                {!collapsed && item.badge !== null && (
+                {(!collapsed || mobileOpen) && item.badge !== null && (
                   <span className="nav-badge">{item.badge}</span>
                 )}
               </button>
@@ -1399,17 +1643,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Bottom section */}
       <div style={{ marginTop: 'auto', paddingTop: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {/* User Profile Card */}
-        <div className="sidebar-user-card" title={collapsed ? `${userName} — ${userRole}` : undefined}>
+        <div className="sidebar-user-card" title={collapsed && !mobileOpen ? `${userName} — ${userRole}` : undefined}>
           <div className="avatar" style={{ width: '36px', height: '36px', fontSize: '13px' }}>{userInitials}</div>
-          {!collapsed && (
+          {(!collapsed || mobileOpen) && (
             <div className="sidebar-user-info">
               <span className="sidebar-user-name">{userName}</span>
               <span className="sidebar-user-role">{userRole}</span>
             </div>
           )}
         </div>
-
-        {/* User Profile Card */}
 
         {/* Collapse toggle button */}
         <button
@@ -1424,11 +1666,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Logout Button */}
         <button
           className="sidebar-logout-btn"
-          title={collapsed ? 'Log Out' : undefined}
-          onClick={onLogout || (() => alert('Logged out!'))}
+          title={collapsed && !mobileOpen ? 'Log Out' : undefined}
+          onClick={() => {
+            if (onCloseMobile) onCloseMobile();
+            if (onLogout) onLogout();
+            else alert('Logged out!');
+          }}
         >
           <LogOut size={18} style={{ flexShrink: 0 }} />
-          {!collapsed && <span className="sidebar-logout-text">Log Out</span>}
+          {(!collapsed || mobileOpen) && <span className="sidebar-logout-text">Log Out</span>}
         </button>
       </div>
     </aside>
@@ -1445,6 +1691,7 @@ interface HeaderProps {
   darkMode: boolean;
   onToggleTheme: () => void;
   tasks?: Task[];
+  onToggleMobileSidebar?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -1454,6 +1701,7 @@ export const Header: React.FC<HeaderProps> = ({
   darkMode,
   onToggleTheme,
   tasks = [],
+  onToggleMobileSidebar,
 }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [readIds, setReadIds] = useState<string[]>([]);
@@ -1503,7 +1751,154 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className="header">
-      <div className="header-search">
+      <div className="header-top-bar">
+        <div className="header-left">
+          {onToggleMobileSidebar && (
+            <button
+              className="btn-icon-toggle mobile-three-dots-btn"
+              onClick={onToggleMobileSidebar}
+              title="Access Sidebar Menu"
+              aria-label="Access sidebar menu"
+            >
+              <MoreVertical size={20} />
+            </button>
+          )}
+          <div className="mobile-header-brand">
+            <Sparkles size={20} color="var(--accent-purple)" style={{ flexShrink: 0 }} />
+            <span style={{ fontWeight: 800, fontSize: '16px', background: 'linear-gradient(90deg, #8B5CF6, #06B6D4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              ListiFy 2.0
+            </span>
+          </div>
+        </div>
+
+        <div className="header-actions">
+          <button className="btn-primary" onClick={onOpenNewTaskModal}>
+            <Plus size={18} />
+            <span>New Task</span>
+          </button>
+
+          <button
+            className="btn-icon-toggle"
+            onClick={onToggleTheme}
+            title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+          >
+            {darkMode ? <Sun size={19} /> : <Moon size={19} />}
+          </button>
+
+          <div style={{ position: 'relative' }}>
+            <button
+              className="btn-icon-toggle"
+              onClick={() => setShowNotifications(!showNotifications)}
+              title="Notifications"
+              style={{ position: 'relative' }}
+            >
+              <Bell size={19} />
+              {unreadCount > 0 && (
+                <span
+                  style={{
+                    position: 'absolute',
+                    top: '2px',
+                    right: '2px',
+                    minWidth: '16px',
+                    height: '16px',
+                    borderRadius: '10px',
+                    backgroundColor: 'var(--accent-rose)',
+                    color: '#FFFFFF',
+                    fontSize: '10px',
+                    fontWeight: 800,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '0 4px',
+                    boxShadow: '0 0 8px var(--accent-rose)',
+                  }}
+                >
+                  {unreadCount}
+                </span>
+              )}
+            </button>
+
+            {showNotifications && (
+              <div
+                className="glass-panel"
+                style={{
+                  position: 'absolute',
+                  top: '48px',
+                  right: 0,
+                  width: '320px',
+                  maxHeight: '400px',
+                  overflowY: 'auto',
+                  padding: '16px',
+                  borderRadius: '16px',
+                  zIndex: 1000,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px',
+                  boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+                  border: '1px solid var(--border-color)',
+                  background: 'var(--bg-secondary)',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text-primary)' }}>
+                    Workspace Notifications
+                  </span>
+                  {unreadCount > 0 && (
+                    <button
+                      onClick={handleMarkAllRead}
+                      style={{
+                        background: 'transparent',
+                        border: 'none',
+                        color: 'var(--accent-purple)',
+                        fontSize: '11px',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      Mark all read
+                    </button>
+                  )}
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {dynamicNotifications.map((item) => {
+                    const isRead = readIds.includes(item.id);
+                    return (
+                      <div
+                        key={item.id}
+                        onClick={() => setReadIds((prev) => [...prev, item.id])}
+                        style={{
+                          padding: '10px 12px',
+                          borderRadius: '10px',
+                          background: isRead ? 'rgba(255, 255, 255, 0.02)' : 'var(--bg-input)',
+                          border: '1px solid var(--border-color)',
+                          opacity: isRead ? 0.65 : 1,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '4px',
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <span style={{ fontSize: '12px', fontWeight: 700, color: item.type === 'urgent' ? '#F43F5E' : item.type === 'success' ? '#34D399' : 'var(--accent-cyan)' }}>
+                            {item.title}
+                          </span>
+                          <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{item.time}</span>
+                        </div>
+                        <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>
+                          {item.message}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="header-search" style={{ position: 'relative' }}>
         <Search className="search-icon" size={18} />
         <input
           type="text"
@@ -1511,132 +1906,29 @@ export const Header: React.FC<HeaderProps> = ({
           value={searchTerm}
           onChange={(e) => onSearchChange(e.target.value)}
         />
-      </div>
-
-      <div className="header-actions">
-        <button className="btn-primary" onClick={onOpenNewTaskModal}>
-          <Plus size={18} />
-          <span>New Task</span>
-        </button>
-
-        <button
-          className="btn-icon-toggle"
-          onClick={onToggleTheme}
-          title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
-        >
-          {darkMode ? <Sun size={19} /> : <Moon size={19} />}
-        </button>
-
-        <div style={{ position: 'relative' }}>
+        {searchTerm && (
           <button
-            className="btn-icon-toggle"
-            onClick={() => setShowNotifications(!showNotifications)}
-            title="Notifications"
-            style={{ position: 'relative' }}
+            onClick={() => onSearchChange('')}
+            style={{
+              position: 'absolute',
+              right: '12px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              background: 'transparent',
+              border: 'none',
+              color: 'var(--text-muted)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '4px',
+              borderRadius: '50%',
+            }}
+            title="Clear search"
           >
-            <Bell size={19} />
-            {unreadCount > 0 && (
-              <span
-                style={{
-                  position: 'absolute',
-                  top: '2px',
-                  right: '2px',
-                  minWidth: '16px',
-                  height: '16px',
-                  borderRadius: '10px',
-                  backgroundColor: 'var(--accent-rose)',
-                  color: '#FFFFFF',
-                  fontSize: '10px',
-                  fontWeight: 800,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  padding: '0 4px',
-                  boxShadow: '0 0 8px var(--accent-rose)',
-                }}
-              >
-                {unreadCount}
-              </span>
-            )}
+            <X size={14} />
           </button>
-
-          {showNotifications && (
-            <div
-              className="glass-panel"
-              style={{
-                position: 'absolute',
-                top: '48px',
-                right: 0,
-                width: '320px',
-                maxHeight: '400px',
-                overflowY: 'auto',
-                padding: '16px',
-                borderRadius: '16px',
-                zIndex: 1000,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '12px',
-                boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
-                border: '1px solid var(--border-color)',
-                background: 'var(--bg-secondary)',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text-primary)' }}>
-                  Workspace Notifications
-                </span>
-                {unreadCount > 0 && (
-                  <button
-                    onClick={handleMarkAllRead}
-                    style={{
-                      background: 'transparent',
-                      border: 'none',
-                      color: 'var(--accent-purple)',
-                      fontSize: '11px',
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Mark all read
-                  </button>
-                )}
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {dynamicNotifications.map((item) => {
-                  const isRead = readIds.includes(item.id);
-                  return (
-                    <div
-                      key={item.id}
-                      onClick={() => setReadIds((prev) => [...prev, item.id])}
-                      style={{
-                        padding: '10px 12px',
-                        borderRadius: '10px',
-                        background: isRead ? 'rgba(255, 255, 255, 0.02)' : 'var(--bg-input)',
-                        border: '1px solid var(--border-color)',
-                        opacity: isRead ? 0.65 : 1,
-                        cursor: 'pointer',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '4px',
-                      }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <span style={{ fontSize: '12px', fontWeight: 700, color: item.type === 'urgent' ? '#F43F5E' : item.type === 'success' ? '#34D399' : 'var(--accent-cyan)' }}>
-                          {item.title}
-                        </span>
-                        <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{item.time}</span>
-                      </div>
-                      <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>
-                        {item.message}
-                      </p>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-        </div>
+        )}
       </div>
     </header>
   );
@@ -2742,6 +3034,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, onUpdateUs
   const navigate = useNavigate();
   const location = useLocation();
 
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [tasks, setTasks] = useState<Task[]>(() => {
     const saved = localStorage.getItem('listify_tasks') || localStorage.getItem('taskpulse_tasks');
     return saved ? JSON.parse(saved) : INITIAL_TASKS;
@@ -2773,6 +3066,20 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, onUpdateUs
     const savedTheme = localStorage.getItem('listify_theme') || localStorage.getItem('taskpulse_theme');
     return savedTheme ? savedTheme === 'dark' : true;
   });
+
+  const [toasts, setToasts] = useState<{ id: string; title: string; message: string }[]>([]);
+
+  const addToast = (title: string, message: string) => {
+    const newToast = { id: Date.now().toString() + Math.random().toString(), title, message };
+    setToasts((prev) => [...prev.slice(-3), newToast]);
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== newToast.id));
+    }, 4000);
+  };
+
+  const removeToast = (id: string) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  };
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
@@ -2838,6 +3145,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, onUpdateUs
             : t
         )
       );
+      addToast('✏️ Task Updated', `"${taskData.title}" was updated successfully.`);
       try {
         await api.updateTask(taskData.id, taskData);
       } catch (err) {
@@ -2857,6 +3165,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, onUpdateUs
         };
         setTasks([newTask, ...tasks]);
       }
+      addToast('✨ Task Created', `"${taskData.title}" was added to your workspace.`);
     }
     setTaskToEdit(null);
   };
@@ -2879,6 +3188,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, onUpdateUs
       })
     );
 
+    if (newStatus === 'completed') {
+      addToast('🎉 Task Completed!', `+1 PTS added! "${targetTask.title}" is finished.`);
+    } else {
+      addToast('⏳ Task Reopened', `"${targetTask.title}" is active again.`);
+    }
+
     try {
       await api.updateTask(id, { status: newStatus });
     } catch (err) {
@@ -2887,13 +3202,18 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, onUpdateUs
   };
 
   const handleTogglePin = (id: string) => {
+    const targetTask = tasks.find((t) => t.id === id);
+    const isPinning = !targetTask?.pinned;
     setTasks(
       tasks.map((t) => (t.id === id ? { ...t, pinned: !t.pinned } : t))
     );
+    addToast(isPinning ? '📌 Task Pinned' : '📌 Task Unpinned', isPinning ? 'Pinned to top of workspace.' : 'Removed from pinned section.');
   };
 
   const handleDeleteTask = async (id: string) => {
+    const targetTask = tasks.find((t) => t.id === id);
     setTasks(tasks.filter((t) => t.id !== id));
+    addToast('🗑️ Task Deleted', targetTask ? `"${targetTask.title}" was removed.` : 'Task removed from workspace.');
     try {
       await api.deleteTask(id);
     } catch (err) {
@@ -2984,6 +3304,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, onUpdateUs
     <div className={`dashboard-container ${!darkMode ? 'light-theme' : ''}`}>
       <style>{DASHBOARD_STYLES}</style>
 
+      {/* Sidebar mobile backdrop overlay */}
+      <div
+        className={`sidebar-backdrop ${mobileSidebarOpen ? 'active' : ''}`}
+        onClick={() => setMobileSidebarOpen(false)}
+      />
+
       {/* Animated gradient orbs background */}
       <div className="bg-orbs" aria-hidden="true">
         <div className="bg-orb bg-orb-1" />
@@ -2994,11 +3320,16 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, onUpdateUs
 
       <Sidebar
         activeSection={activeSection}
-        onSelectSection={handleSelectSection}
+        onSelectSection={(sec) => {
+          handleSelectSection(sec);
+          setMobileSidebarOpen(false);
+        }}
         totalCount={totalTasks}
         completedCount={completedTasks}
         user={user}
         onLogout={onLogout}
+        mobileOpen={mobileSidebarOpen}
+        onCloseMobile={() => setMobileSidebarOpen(false)}
       />
 
       <main className="dashboard-main">
@@ -3009,6 +3340,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, onUpdateUs
           darkMode={darkMode}
           onToggleTheme={() => setDarkMode(!darkMode)}
           tasks={tasks}
+          onToggleMobileSidebar={() => setMobileSidebarOpen(!mobileSidebarOpen)}
         />
 
         <div className="dashboard-content">
@@ -3118,6 +3450,29 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, onUpdateUs
         onSaveTask={handleSaveTask}
         taskToEdit={taskToEdit}
       />
+
+      {/* Light Green Toast Notifications */}
+      <div className="toast-container">
+        {toasts.map((toast) => (
+          <div key={toast.id} className="toast-item">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: 'rgba(52, 211, 153, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <CheckCircle2 size={16} color="#34D399" />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <span style={{ fontSize: '13px', fontWeight: 700 }}>{toast.title}</span>
+                <span style={{ fontSize: '11px', opacity: 0.85 }}>{toast.message}</span>
+              </div>
+            </div>
+            <button
+              onClick={() => removeToast(toast.id)}
+              style={{ background: 'transparent', border: 'none', color: 'currentColor', opacity: 0.7, cursor: 'pointer', padding: '2px' }}
+            >
+              <X size={14} />
+            </button>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
