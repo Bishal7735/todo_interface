@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import type { User } from '../types/todo';
 import { api } from '../services/interpreter';
+import SoftAurora from './SoftAurora';
 
 interface AuthProps {
   onLoginSuccess: (user: User) => void;
@@ -27,8 +28,6 @@ interface AuthProps {
    LISTIFY 2.0 PREMIUM DESIGN SYSTEM & AUTHENTICATION STYLES
    ========================================================================== */
 const AUTH_STYLES = `
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap');
-
 .auth-viewport {
   height: 100vh;
   max-height: 100vh;
@@ -700,12 +699,23 @@ export const AuthPage: React.FC<AuthProps> = ({ onLoginSuccess }) => {
     <div className="auth-viewport">
       <style>{AUTH_STYLES}</style>
 
-      {/* Aurora Ambient Glow background */}
-      <div className="auth-aurora-bg">
-        <div className="aurora-orb aurora-1" />
-        <div className="aurora-orb aurora-2" />
-        <div className="aurora-orb aurora-3" />
-      </div>
+      {/* Soft Aurora WebGL Ambient Glow background */}
+      <SoftAurora
+        speed={0.6}
+        scale={1.5}
+        brightness={1}
+        color1="#f7f7f7"
+        color2="#e100ff"
+        noiseFrequency={2.5}
+        noiseAmplitude={4}
+        bandHeight={0.5}
+        bandSpread={1}
+        octaveDecay={0.01}
+        layerOffset={0}
+        colorSpeed={1}
+        enableMouseInteraction
+        mouseInfluence={0.25}
+      />
 
       {/* Subtle Grid Background Overlay */}
       <div className="auth-grid-overlay" />
