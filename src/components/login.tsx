@@ -16,6 +16,7 @@ import {
   Phone
 } from 'lucide-react';
 import type { User } from '../types/todo';
+import { api } from '../services/api';
 
 interface AuthProps {
   onLoginSuccess: (user: User) => void;
@@ -691,11 +692,6 @@ export const AuthPage: React.FC<AuthProps> = ({ onLoginSuccess }) => {
                 Joined by <strong style={{ color: '#FFFFFF' }}>12,000+</strong> creators
               </div>
             </div>
-
-            <div className="widget-rating">
-              <Flame size={16} color="#F59E0B" />
-              <span>7 Days Streak</span>
-            </div>
           </div>
         </div>
 
@@ -772,40 +768,43 @@ export const LoginSection: React.FC<LoginSectionProps> = ({
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim() || !password.trim()) {
       setError('Please enter both email and password.');
       return;
     }
 
-    const nameFromEmail = email.split('@')[0];
-    const formattedName = nameFromEmail
-      ? nameFromEmail.charAt(0).toUpperCase() + nameFromEmail.slice(1)
-      : 'User';
-    const initials = formattedName.substring(0, 2).toUpperCase();
+    setLoading(true);
+    setError(null);
 
-    const loggedUser: User = {
-      id: Date.now().toString(),
-      name: formattedName,
-      email: email,
-      role: 'Product Designer',
-      avatarInitials: initials
-    };
+    try {
+      const res = await api.login(email.trim(), password);
+      const nameFromApi = res.user?.name || email.split('@')[0];
+      const initials = nameFromApi
+        .split(' ')
+        .map((p) => p[0])
+        .join('')
+        .substring(0, 2)
+        .toUpperCase() || 'US';
 
-    onLoginSuccess(loggedUser);
-  };
+      const loggedUser: User = {
+        id: Date.now().toString(),
+        name: nameFromApi,
+        email: email.trim(),
+        role: res.user?.role || 'Product Designer',
+        avatarInitials: initials,
+      };
 
-  const handleDemoLogin = () => {
-    const demoUser: User = {
-      id: 'demo-user-1',
-      name: 'Bishal Roy',
-      email: 'bishal@listify.app',
-      role: 'Product Designer',
-      avatarInitials: 'BR'
-    };
-    onLoginSuccess(demoUser);
+      onLoginSuccess(loggedUser);
+    } catch (err: any) {
+      console.warn('API Login failed:', err);
+      setError(err.message || 'Login failed. Incorrect email or password.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -884,23 +883,10 @@ export const LoginSection: React.FC<LoginSectionProps> = ({
         </label>
       </div>
 
-      <button type="submit" className="submit-btn-primary">
-        <span>Sign In to Workspace</span>
+      <button type="submit" className="submit-btn-primary" disabled={loading}>
+        <span>{loading ? 'Authenticating...' : 'Sign In to Workspace'}</span>
         <ArrowRight size={18} />
       </button>
-
-      <button
-        type="button"
-        className="quick-demo-btn"
-        onClick={handleDemoLogin}
-      >
-        <Sparkles size={16} />
-        <span>Quick Demo Login (Bishal Roy)</span>
-      </button>
-
-      <div className="divider-line">
-        <span>OR CONTINUE WITH</span>
-      </div>
 
       <div style={{ textAlign: 'center', fontSize: '13px', color: '#94A3B8', marginTop: '4px' }}>
         Don't have an account?{' '}
@@ -937,8 +923,9 @@ export const RegisterSection: React.FC<RegisterSectionProps> = ({
   const [showPassword, setShowPassword] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!fullName.trim() || !email.trim() || !password.trim()) {
       setError('Please fill in all required fields.');
@@ -953,23 +940,35 @@ export const RegisterSection: React.FC<RegisterSectionProps> = ({
       return;
     }
 
-    const initials = fullName
-      .split(' ')
-      .map((part) => part[0])
-      .join('')
-      .substring(0, 2)
-      .toUpperCase() || 'US';
+    setLoading(true);
+    setError(null);
 
-    const newUser: User = {
-      id: Date.now().toString(),
-      name: fullName.trim(),
-      email: email.trim(),
-      mobileNumber: mobileNumber.trim(),
-      role: 'Product Designer',
-      avatarInitials: initials,
-    };
+    try {
+      const res = await api.register(fullName.trim(), email.trim(), password, mobileNumber.trim());
+      const nameFromApi = res.user?.name || fullName.trim();
+      const initials = nameFromApi
+        .split(' ')
+        .map((part) => part[0])
+        .join('')
+        .substring(0, 2)
+        .toUpperCase() || 'US';
 
-    onLoginSuccess(newUser);
+      const newUser: User = {
+        id: Date.now().toString(),
+        name: nameFromApi,
+        email: email.trim(),
+        mobileNumber: mobileNumber.trim(),
+        role: res.user?.role || 'Product Designer',
+        avatarInitials: initials,
+      };
+
+      onLoginSuccess(newUser);
+    } catch (err: any) {
+      console.warn('API Registration failed:', err);
+      setError(err.message || 'Registration failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -1071,8 +1070,8 @@ export const RegisterSection: React.FC<RegisterSectionProps> = ({
         </label>
       </div>
 
-      <button type="submit" className="submit-btn-primary">
-        <span>Create My Free Account</span>
+      <button type="submit" className="submit-btn-primary" disabled={loading}>
+        <span>{loading ? 'Creating Account...' : 'Create My Free Account'}</span>
         <CheckCircle2 size={18} />
       </button>
 

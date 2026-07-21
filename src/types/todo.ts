@@ -54,7 +54,6 @@ export interface DashboardStats {
   inProgress: number;
   urgent: number;
   completionPercentage: number;
-  streakDays: number;
 }
 
-export type NavSection = 'dashboard' | 'tasks' | 'analytics' | 'categories' | 'settings';
+export type NavSection = 'dashboard' | 'tasks' | 'analytics' | 'settings';

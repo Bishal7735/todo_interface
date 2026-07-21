@@ -4,6 +4,7 @@ import { LandingPage } from './landing/LandingPage';
 import { Dashboard } from './components/Dashboard';
 import { AuthPage } from './components/Login';
 import type { User } from './types/todo';
+import { removeTokens } from './services/api';
 
 function App() {
   const navigate = useNavigate();
@@ -25,9 +26,15 @@ function App() {
     navigate('/dashboard');
   };
 
+  const handleUpdateUser = (updatedUser: User) => {
+    setCurrentUser(updatedUser);
+    localStorage.setItem('listify_user', JSON.stringify(updatedUser));
+  };
+
   const handleLogout = () => {
     setCurrentUser(null);
     localStorage.removeItem('listify_user');
+    removeTokens();
     navigate('/');
   };
 
@@ -36,19 +43,13 @@ function App() {
       <Route path="/" element={<LandingPage />} />
       <Route
         path="/login"
-        element={
-          currentUser ? (
-            <Navigate to="/dashboard" replace />
-          ) : (
-            <AuthPage onLoginSuccess={handleLoginSuccess} />
-          )
-        }
+        element={<AuthPage onLoginSuccess={handleLoginSuccess} />}
       />
       <Route
         path="/dashboard"
         element={
           currentUser ? (
-            <Dashboard user={currentUser} onLogout={handleLogout} />
+            <Dashboard user={currentUser} onLogout={handleLogout} onUpdateUser={handleUpdateUser} />
           ) : (
             <Navigate to="/login" replace />
           )

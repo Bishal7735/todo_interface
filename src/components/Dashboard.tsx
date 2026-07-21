@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import type { User } from '../types/todo';
+import { api } from '../services/api';
+import { Settings as SettingsComponent } from './Settings';
+import { Analytics as AnalyticsComponent } from './Analytics';
 import {
   ChartsContainer,
   BarPlot,
@@ -1310,7 +1313,6 @@ export interface DashboardStats {
   inProgress: number;
   urgent: number;
   completionPercentage: number;
-  streakDays: number;
 }
 
 export type NavSection = 'dashboard' | 'tasks' | 'analytics' | 'categories' | 'settings';
@@ -1323,7 +1325,6 @@ interface SidebarProps {
   onSelectSection: (section: NavSection) => void;
   totalCount: number;
   completedCount: number;
-  streakDays: number;
   user?: User | null;
   onLogout?: () => void;
 }
@@ -1333,7 +1334,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onSelectSection,
   totalCount,
   completedCount,
-  streakDays,
   user,
   onLogout,
 }) => {
@@ -1347,7 +1347,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, badge: null },
     { id: 'tasks', label: 'My Tasks', icon: CheckSquare, badge: pendingCount > 0 ? pendingCount : null },
     { id: 'analytics', label: 'Analytics', icon: BarChart3, badge: null },
-    { id: 'categories', label: 'Projects', icon: FolderKanban, badge: null },
     { id: 'settings', label: 'Settings', icon: Settings, badge: null },
   ];
 
@@ -1406,31 +1405,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           )}
         </div>
 
-        {/* Streak Card */}
-        <div className="sidebar-streak-card" title={collapsed ? `${streakDays} Days Streak!` : undefined}>
-          <div
-            style={{
-              width: '34px',
-              height: '34px',
-              borderRadius: '10px',
-              background: 'var(--grad-amber)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#fff',
-              boxShadow: '0 4px 12px rgba(245, 158, 11, 0.3)',
-              flexShrink: 0,
-            }}
-          >
-            <Flame size={18} />
-          </div>
-          {!collapsed && (
-            <div className="sidebar-streak-text">
-              <div style={{ fontSize: '13px', fontWeight: 800 }}>{streakDays} Days Streak!</div>
-              <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>You're on fire 🔥</div>
-            </div>
-          )}
-        </div>
+        {/* User Profile Card */}
 
         {/* Collapse toggle button */}
         <button
@@ -1533,7 +1508,7 @@ export const StatsCards: React.FC<StatsCardsProps> = ({ stats }) => {
       title: 'Total Tasks',
       value: stats.total,
       label: 'All created tasks',
-      trend: '+12% this week',
+      trend: `${stats.total} total items`,
       trendClass: 'positive',
       icon: ListTodo,
       gradient: 'var(--grad-primary)',
@@ -1543,7 +1518,7 @@ export const StatsCards: React.FC<StatsCardsProps> = ({ stats }) => {
       title: 'Completed',
       value: stats.completed,
       label: `${stats.completionPercentage}% overall progress`,
-      trend: `${stats.completionPercentage}% done`,
+      trend: `${stats.completed} done (${stats.completionPercentage}%)`,
       trendClass: 'positive',
       icon: CheckCircle2,
       gradient: 'var(--grad-emerald)',
@@ -1553,7 +1528,7 @@ export const StatsCards: React.FC<StatsCardsProps> = ({ stats }) => {
       title: 'In Progress',
       value: stats.inProgress,
       label: 'Currently active',
-      trend: 'In active sprint',
+      trend: `${stats.inProgress} active sprint`,
       trendClass: 'warning',
       icon: Clock,
       gradient: 'var(--grad-cyan)',
@@ -1563,7 +1538,7 @@ export const StatsCards: React.FC<StatsCardsProps> = ({ stats }) => {
       title: 'Urgent Priority',
       value: stats.urgent,
       label: 'Requires attention',
-      trend: stats.urgent > 0 ? 'High priority' : 'All clear',
+      trend: stats.urgent > 0 ? `${stats.urgent} high priority` : 'All clear',
       trendClass: stats.urgent > 0 ? 'urgent' : 'positive',
       icon: AlertTriangle,
       gradient: 'var(--grad-rose)',
@@ -1606,20 +1581,34 @@ export const StatsCards: React.FC<StatsCardsProps> = ({ stats }) => {
 // 5. PRODUCTIVITY CHART COMPONENT
 // ==========================================
 interface ProductivityChartProps {
-  completedCount: number;
+  tasks: Task[];
 }
 
-export const ProductivityChart: React.FC<ProductivityChartProps> = ({ completedCount }) => {
+export const ProductivityChart: React.FC<ProductivityChartProps> = ({ tasks }) => {
   const [activeMetric, setActiveMetric] = useState<'all' | 'tasks' | 'focus'>('all');
   const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  const taskData = [4, 7, 5, 8, 6, 9, Math.max(completedCount, 6)];
-  const focusData = [3, 5, 4, 6, 5, 7, 5];
 
-  const totalCompleted = taskData.reduce((a, b) => a + b, 0);
-  const totalFocus = focusData.reduce((a, b) => a + b, 0);
+  const taskData = [0, 0, 0, 0, 0, 0, 0];
+  const focusData = [0, 0, 0, 0, 0, 0, 0];
+
+  tasks.forEach((t) => {
+    const taskDateStr = t.updatedAt || t.createdAt || t.dueDate;
+    if (!taskDateStr) return;
+    const dateObj = new Date(taskDateStr);
+    const dayOfWeek = (dateObj.getDay() + 6) % 7;
+
+    if (t.status === 'completed') {
+      taskData[dayOfWeek] += 1;
+    }
+    const estHours = (t.estimatedMinutes || 45) / 60;
+    focusData[dayOfWeek] += Number(estHours.toFixed(1));
+  });
+
+  const totalCompleted = tasks.filter((t) => t.status === 'completed').length;
+  const totalFocus = Number(focusData.reduce((a, b) => a + b, 0).toFixed(1));
   const maxTaskVal = Math.max(...taskData);
   const peakDayIndex = taskData.indexOf(maxTaskVal);
-  const peakDay = labels[peakDayIndex >= 0 ? peakDayIndex : 0];
+  const peakDay = maxTaskVal > 0 ? labels[peakDayIndex] : 'N/A';
 
   const series = [];
   if (activeMetric === 'all' || activeMetric === 'tasks') {
@@ -2621,9 +2610,10 @@ const INITIAL_TASKS: Task[] = [
 interface DashboardProps {
   user?: User | null;
   onLogout?: () => void;
+  onUpdateUser?: (updatedUser: User) => void;
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, onUpdateUser }) => {
   const [tasks, setTasks] = useState<Task[]>(() => {
     const saved = localStorage.getItem('listify_tasks') || localStorage.getItem('taskpulse_tasks');
     return saved ? JSON.parse(saved) : INITIAL_TASKS;
@@ -2652,6 +2642,20 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
   }, [tasks]);
 
   useEffect(() => {
+    const fetchBackendTasks = async () => {
+      try {
+        const remoteTasks = await api.getAllTasks();
+        if (remoteTasks && Array.isArray(remoteTasks)) {
+          setTasks(remoteTasks);
+        }
+      } catch (err) {
+        console.warn('Could not fetch backend tasks, using local cache:', err);
+      }
+    };
+    fetchBackendTasks();
+  }, []);
+
+  useEffect(() => {
     localStorage.setItem('listify_theme', darkMode ? 'dark' : 'light');
     if (!darkMode) {
       document.body.classList.add('light-theme');
@@ -2672,10 +2676,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
     inProgress: inProgressTasks,
     urgent: urgentTasks,
     completionPercentage,
-    streakDays: 7,
   };
 
-  const handleSaveTask = (taskData: Omit<Task, 'id' | 'createdAt' | 'updatedAt'> & { id?: string }) => {
+  const handleSaveTask = async (taskData: Omit<Task, 'id' | 'createdAt' | 'updatedAt'> & { id?: string }) => {
     const now = new Date().toISOString();
 
     if (taskData.id) {
@@ -2686,23 +2689,37 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
             : t
         )
       );
+      try {
+        await api.updateTask(taskData.id, taskData);
+      } catch (err) {
+        console.warn('Failed to update task on backend:', err);
+      }
     } else {
-      const newTask: Task = {
-        ...taskData,
-        id: Date.now().toString(),
-        createdAt: now,
-        updatedAt: now,
-      };
-      setTasks([newTask, ...tasks]);
+      try {
+        const createdTask = await api.createTask(taskData);
+        setTasks([createdTask, ...tasks]);
+      } catch (err) {
+        console.warn('Failed to create task on backend, creating locally:', err);
+        const newTask: Task = {
+          ...taskData,
+          id: Date.now().toString(),
+          createdAt: now,
+          updatedAt: now,
+        };
+        setTasks([newTask, ...tasks]);
+      }
     }
     setTaskToEdit(null);
   };
 
-  const handleToggleComplete = (id: string) => {
+  const handleToggleComplete = async (id: string) => {
+    const targetTask = tasks.find((t) => t.id === id);
+    if (!targetTask) return;
+
+    const newStatus = targetTask.status === 'completed' ? 'todo' : 'completed';
     setTasks(
       tasks.map((t) => {
         if (t.id === id) {
-          const newStatus = t.status === 'completed' ? 'todo' : 'completed';
           return {
             ...t,
             status: newStatus,
@@ -2712,6 +2729,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
         return t;
       })
     );
+
+    try {
+      await api.updateTask(id, { status: newStatus });
+    } catch (err) {
+      console.warn('Failed to toggle status on backend:', err);
+    }
   };
 
   const handleTogglePin = (id: string) => {
@@ -2720,8 +2743,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
     );
   };
 
-  const handleDeleteTask = (id: string) => {
+  const handleDeleteTask = async (id: string) => {
     setTasks(tasks.filter((t) => t.id !== id));
+    try {
+      await api.deleteTask(id);
+    } catch (err) {
+      console.warn('Failed to delete task on backend:', err);
+    }
   };
 
   const handleToggleSubtask = (taskId: string, subtaskId: string) => {
@@ -2811,7 +2839,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
         onSelectSection={setActiveSection}
         totalCount={totalTasks}
         completedCount={completedTasks}
-        streakDays={stats.streakDays}
         user={user}
         onLogout={onLogout}
       />
@@ -2826,66 +2853,75 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
         />
 
         <div className="dashboard-content">
-          <div className="welcome-banner">
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Sparkles size={22} color="var(--accent-purple)" />
-                <h1 className="welcome-title">Good Afternoon, {user?.name ? user.name.split(' ')[0] : 'Bishal'}!</h1>
-              </div>
-              <p className="welcome-subtitle">
-                You've completed <strong style={{ color: 'var(--accent-emerald)' }}>{completedTasks} of {totalTasks}</strong> tasks. You are on track to achieve your weekly goal!
-              </p>
-            </div>
-
-            <div className="welcome-stats">
-              <div className="progress-circle-wrapper">
-                <div style={{ textAlign: 'center', fontWeight: 800, fontSize: '15px', color: 'var(--accent-purple)' }}>
-                  {completionPercentage}%
-                </div>
-              </div>
-              <div>
-                <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)' }}>
-                  Productivity Rate
-                </div>
-                <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
-                  {urgentTasks > 0 ? `${urgentTasks} urgent tasks remaining` : 'No urgent bottlenecks!'}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <StatsCards stats={stats} />
-
-          {(activeSection === 'dashboard' || activeSection === 'analytics') && (
-            <div className="widgets-grid">
-              <ProductivityChart completedCount={completedTasks} />
-              <CategoryProgress tasks={tasks} />
-            </div>
-          )}
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <h2 style={{ fontSize: '20px', fontWeight: 800, letterSpacing: '-0.4px' }}>
-                {activeSection === 'tasks' ? 'All Workspace Tasks' : 'Active Tasks & Roadmap'}
-              </h2>
-              <span style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: 600 }}>
-                Showing {filteredTasks.length} of {totalTasks} tasks
-              </span>
-            </div>
-
-            <TaskFilter filter={filter} onUpdateFilter={handleUpdateFilter} />
-
-            <TaskList
-              tasks={filteredTasks}
-              viewMode={filter.viewMode}
-              onToggleComplete={handleToggleComplete}
-              onTogglePin={handleTogglePin}
-              onEditTask={handleOpenEditTaskModal}
-              onDeleteTask={handleDeleteTask}
-              onToggleSubtask={handleToggleSubtask}
-              onOpenNewTaskModal={handleOpenNewTaskModal}
+          {activeSection === 'settings' ? (
+            <SettingsComponent
+              user={user}
+              onUpdateUser={onUpdateUser}
+              darkMode={darkMode}
+              onToggleTheme={() => setDarkMode(!darkMode)}
+              filter={filter}
+              onUpdateFilter={handleUpdateFilter}
+              onLogout={onLogout}
             />
-          </div>
+          ) : activeSection === 'analytics' ? (
+            <AnalyticsComponent tasks={tasks} />
+          ) : (
+            <>
+              <div className="welcome-banner">
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Sparkles size={22} color="var(--accent-purple)" />
+                    <h1 className="welcome-title">Good Afternoon, {user?.name ? user.name.split(' ')[0] : 'Bishal'}!</h1>
+                  </div>
+                  <p className="welcome-subtitle">
+                    You've completed <strong style={{ color: 'var(--accent-emerald)' }}>{completedTasks} of {totalTasks}</strong> tasks. You are on track to achieve your weekly goal!
+                  </p>
+                </div>
+
+                <div className="welcome-stats">
+                  <div className="progress-circle-wrapper">
+                    <div style={{ textAlign: 'center', fontWeight: 800, fontSize: '15px', color: 'var(--accent-purple)' }}>
+                      {completionPercentage}%
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)' }}>
+                      Productivity Rate
+                    </div>
+                    <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+                      {urgentTasks > 0 ? `${urgentTasks} urgent tasks remaining` : 'No urgent bottlenecks!'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <StatsCards stats={stats} />
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <h2 style={{ fontSize: '20px', fontWeight: 800, letterSpacing: '-0.4px' }}>
+                    {activeSection === 'tasks' ? 'All Workspace Tasks' : 'Active Tasks & Roadmap'}
+                  </h2>
+                  <span style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: 600 }}>
+                    Showing {filteredTasks.length} of {totalTasks} tasks
+                  </span>
+                </div>
+
+                <TaskFilter filter={filter} onUpdateFilter={handleUpdateFilter} />
+
+                <TaskList
+                  tasks={filteredTasks}
+                  viewMode={filter.viewMode}
+                  onToggleComplete={handleToggleComplete}
+                  onTogglePin={handleTogglePin}
+                  onEditTask={handleOpenEditTaskModal}
+                  onDeleteTask={handleDeleteTask}
+                  onToggleSubtask={handleToggleSubtask}
+                  onOpenNewTaskModal={handleOpenNewTaskModal}
+                />
+              </div>
+            </>
+          )}
         </div>
       </main>
 
