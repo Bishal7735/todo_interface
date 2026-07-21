@@ -263,4 +263,27 @@ export const api = {
       method: 'DELETE',
     });
   },
+
+  syncFocusTime: async (date: string, minutes: number, seconds: number): Promise<void> => {
+    try {
+      await request('/focus/sync', {
+        method: 'POST',
+        body: JSON.stringify({ date, minutes, seconds }),
+      });
+    } catch (e) {
+      console.warn('Failed to sync focus time to database:', e);
+    }
+  },
+
+  getFocusTime: async (): Promise<Array<{ date: string; minutes: number; seconds: number }>> => {
+    try {
+      const res = await request<{ success: boolean; data: Array<{ date: string; minutes: number; seconds: number }> }>('/focus', {
+        method: 'GET',
+      });
+      return res.data || [];
+    } catch (e) {
+      console.warn('Failed to fetch focus time from database:', e);
+      return [];
+    }
+  },
 };

@@ -49,7 +49,17 @@ function App() {
         path="/dashboard"
         element={
           currentUser ? (
-            <Dashboard user={currentUser} onLogout={handleLogout} onUpdateUser={handleUpdateUser} />
+            <Dashboard user={currentUser} onLogout={handleLogout} onUpdateUser={handleUpdateUser} initialSection="dashboard" />
+          ) : (
+            <Navigate to="/login" replace />
+          )
+        }
+      />
+      <Route
+        path="/tasks"
+        element={
+          currentUser ? (
+            <Dashboard user={currentUser} onLogout={handleLogout} onUpdateUser={handleUpdateUser} initialSection="tasks" />
           ) : (
             <Navigate to="/login" replace />
           )

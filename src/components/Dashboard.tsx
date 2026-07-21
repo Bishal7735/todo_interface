@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import type { User } from '../types/todo';
 import { api } from '../services/api';
 import { Settings as SettingsComponent } from './Settings';
 import { Analytics as AnalyticsComponent } from './Analytics';
+import { Tasks as TasksComponent } from './Tasks';
+import { useTabFocusTime } from '../services/focusTracker';
 import {
   ChartsContainer,
   BarPlot,
@@ -1583,14 +1586,12 @@ export const StatsCards: React.FC<StatsCardsProps> = ({ stats }) => {
 // ==========================================
 interface ProductivityChartProps {
   tasks: Task[];
-}
-
-export const ProductivityChart: React.FC<ProductivityChartProps> = ({ tasks }) => {
-  const [activeMetric, setActiveMetric] = useState<'all' | 'tasks' | 'focus'>('all');
+}export const ProductivityChart: React.FC<ProductivityChartProps> = ({ tasks }) => {
+  const [activeMetric, setActiveMetric] = useState<'all' | 'tasks' | 'completed'>('all');
   const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-  const taskData = [0, 0, 0, 0, 0, 0, 0];
-  const focusData = [0, 0, 0, 0, 0, 0, 0];
+  const totalTasksData = [0, 0, 0, 0, 0, 0, 0];
+  const completedTasksData = [0, 0, 0, 0, 0, 0, 0];
 
   tasks.forEach((t) => {
     const taskDateStr = t.updatedAt || t.createdAt || t.dueDate;
@@ -1598,34 +1599,32 @@ export const ProductivityChart: React.FC<ProductivityChartProps> = ({ tasks }) =
     const dateObj = new Date(taskDateStr);
     const dayOfWeek = (dateObj.getDay() + 6) % 7;
 
+    totalTasksData[dayOfWeek] += 1;
     if (t.status === 'completed') {
-      taskData[dayOfWeek] += 1;
+      completedTasksData[dayOfWeek] += 1;
     }
-    const estHours = (t.estimatedMinutes || 45) / 60;
-    focusData[dayOfWeek] += Number(estHours.toFixed(1));
   });
 
   const totalCompleted = tasks.filter((t) => t.status === 'completed').length;
-  const totalFocus = Number(focusData.reduce((a, b) => a + b, 0).toFixed(1));
-  const maxTaskVal = Math.max(...taskData);
-  const peakDayIndex = taskData.indexOf(maxTaskVal);
+  const maxTaskVal = Math.max(...completedTasksData);
+  const peakDayIndex = completedTasksData.indexOf(maxTaskVal);
   const peakDay = maxTaskVal > 0 ? labels[peakDayIndex] : 'N/A';
 
   const series = [];
   if (activeMetric === 'all' || activeMetric === 'tasks') {
     series.push({
       type: 'bar' as const,
-      data: taskData,
-      label: 'Tasks Done',
+      data: totalTasksData,
+      label: 'Total Tasks',
       color: '#8B5CF6',
     });
   }
-  if (activeMetric === 'all' || activeMetric === 'focus') {
+  if (activeMetric === 'all' || activeMetric === 'completed') {
     series.push({
       type: 'bar' as const,
-      data: focusData,
-      label: 'Focus Hours',
-      color: '#06B6D4',
+      data: completedTasksData,
+      label: 'Completed Tasks',
+      color: '#34D399', // Light green
     });
   }
 
@@ -1669,7 +1668,7 @@ export const ProductivityChart: React.FC<ProductivityChartProps> = ({ tasks }) =
             <span>Weekly Productivity</span>
           </h3>
           <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: 'var(--text-secondary)' }}>
-            Tasks completed and focus hours comparison
+            Comparison of total tasks created vs completed tasks
           </p>
         </div>
 
@@ -1687,8 +1686,8 @@ export const ProductivityChart: React.FC<ProductivityChartProps> = ({ tasks }) =
         >
           {[
             { id: 'all', label: 'All' },
-            { id: 'tasks', label: 'Tasks' },
-            { id: 'focus', label: 'Focus' },
+            { id: 'tasks', label: 'Total' },
+            { id: 'completed', label: 'Completed' },
           ].map((item) => (
             <button
               key={item.id}
@@ -1727,14 +1726,14 @@ export const ProductivityChart: React.FC<ProductivityChartProps> = ({ tasks }) =
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#8B5CF6' }} />
           <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
-            Tasks: <strong style={{ color: 'var(--text-primary)' }}>{totalCompleted}</strong>
+            Total Tasks: <strong style={{ color: 'var(--text-primary)' }}>{tasks.length}</strong>
           </span>
         </div>
         <div style={{ width: '1px', height: '14px', background: 'rgba(255, 255, 255, 0.1)' }} />
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#06B6D4' }} />
+          <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#34D399' }} />
           <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
-            Focus Hours: <strong style={{ color: 'var(--text-primary)' }}>{totalFocus}h</strong>
+            Completed Tasks: <strong style={{ color: '#34D399' }}>{totalCompleted}</strong>
           </span>
         </div>
         <div style={{ width: '1px', height: '14px', background: 'rgba(255, 255, 255, 0.1)' }} />
@@ -2593,15 +2592,40 @@ interface DashboardProps {
   user?: User | null;
   onLogout?: () => void;
   onUpdateUser?: (updatedUser: User) => void;
+  initialSection?: NavSection;
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, onUpdateUser }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, onUpdateUser, initialSection }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [tasks, setTasks] = useState<Task[]>(() => {
     const saved = localStorage.getItem('listify_tasks') || localStorage.getItem('taskpulse_tasks');
     return saved ? JSON.parse(saved) : INITIAL_TASKS;
   });
 
-  const [activeSection, setActiveSection] = useState<NavSection>('dashboard');
+  const [activeSection, setActiveSection] = useState<NavSection>(() => {
+    if (initialSection) return initialSection;
+    if (location.pathname.includes('/tasks')) return 'tasks';
+    if (location.pathname.includes('/analytics')) return 'analytics';
+    if (location.pathname.includes('/settings')) return 'settings';
+    return 'dashboard';
+  });
+
+  useEffect(() => {
+    if (initialSection) {
+      setActiveSection(initialSection);
+    }
+  }, [initialSection]);
+
+  const handleSelectSection = (section: NavSection) => {
+    setActiveSection(section);
+    if (section === 'tasks') {
+      navigate('/tasks');
+    } else if (section === 'dashboard') {
+      navigate('/dashboard');
+    }
+  };
   const [darkMode, setDarkMode] = useState<boolean>(() => {
     const savedTheme = localStorage.getItem('listify_theme') || localStorage.getItem('taskpulse_theme');
     return savedTheme ? savedTheme === 'dark' : true;
@@ -2818,7 +2842,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, onUpdateUs
 
       <Sidebar
         activeSection={activeSection}
-        onSelectSection={setActiveSection}
+        onSelectSection={handleSelectSection}
         totalCount={totalTasks}
         completedCount={completedTasks}
         user={user}
@@ -2847,8 +2871,25 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, onUpdateUs
             />
           ) : activeSection === 'analytics' ? (
             <AnalyticsComponent tasks={tasks} />
+          ) : activeSection === 'tasks' ? (
+            /* MY TASKS ONLY REFERS TO TASKS.TSX FILE */
+            <TasksComponent
+              tasks={tasks}
+              filteredTasks={filteredTasks}
+              totalTasks={totalTasks}
+              filter={filter}
+              onUpdateFilter={handleUpdateFilter}
+              onToggleComplete={handleToggleComplete}
+              onTogglePin={handleTogglePin}
+              onEditTask={handleOpenEditTaskModal}
+              onDeleteTask={handleDeleteTask}
+              onToggleSubtask={handleToggleSubtask}
+              onOpenNewTaskModal={handleOpenNewTaskModal}
+            />
           ) : (
-            <>
+            /* EXECUTIVE DASHBOARD OVERVIEW PAGE */
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+              {/* Welcome Banner */}
               <div className="welcome-banner">
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -2863,26 +2904,34 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, onUpdateUs
                 <div className="welcome-stats">
                   <div className="progress-circle-wrapper">
                     <div style={{ textAlign: 'center', fontWeight: 800, fontSize: '15px', color: 'var(--accent-purple)' }}>
-                      {completionPercentage}%
+                      {completedTasks} PTS
                     </div>
                   </div>
                   <div>
                     <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)' }}>
-                      Productivity Rate
+                      Productivity Score
                     </div>
                     <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
-                      {urgentTasks > 0 ? `${urgentTasks} urgent tasks remaining` : 'No urgent bottlenecks!'}
+                      1 completed task = 1 point
                     </div>
                   </div>
                 </div>
               </div>
 
+              {/* Workspace Stats Overview Cards */}
               <StatsCards stats={stats} />
 
+              {/* Dashboard Charts & Category Breakdown Grid */}
+              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
+                <ProductivityChart tasks={tasks} />
+                <CategoryProgress tasks={tasks} />
+              </div>
+
+              {/* All Tasks Section Below on Dashboard (Like Before) */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <h2 style={{ fontSize: '20px', fontWeight: 800, letterSpacing: '-0.4px' }}>
-                    {activeSection === 'tasks' ? 'All Workspace Tasks' : 'Active Tasks & Roadmap'}
+                  <h2 style={{ fontSize: '20px', fontWeight: 800, letterSpacing: '-0.4px', margin: 0 }}>
+                    Active Tasks & Roadmap
                   </h2>
                   <span style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: 600 }}>
                     Showing {filteredTasks.length} of {totalTasks} tasks
@@ -2902,7 +2951,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, onUpdateUs
                   onOpenNewTaskModal={handleOpenNewTaskModal}
                 />
               </div>
-            </>
+            </div>
           )}
         </div>
       </main>

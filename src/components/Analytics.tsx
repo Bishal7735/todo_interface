@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import type { Task, Category, Priority } from '../types/todo';
+import { useTabFocusTime } from '../services/focusTracker';
 import {
   ChartsContainer,
   BarPlot,
@@ -32,12 +33,12 @@ interface AnalyticsProps {
 }
 
 export const Analytics: React.FC<AnalyticsProps> = ({ tasks }) => {
-  const [activeMetric, setActiveMetric] = useState<'all' | 'tasks' | 'focus'>('all');
+  const [activeMetric, setActiveMetric] = useState<'all' | 'tasks' | 'completed'>('all');
 
   // 1. Calculations for Weekly Productivity Chart
   const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  const taskData = [0, 0, 0, 0, 0, 0, 0];
-  const focusData = [0, 0, 0, 0, 0, 0, 0];
+  const totalTasksData = [0, 0, 0, 0, 0, 0, 0];
+  const completedTasksData = [0, 0, 0, 0, 0, 0, 0];
 
   tasks.forEach((t) => {
     const taskDateStr = t.updatedAt || t.createdAt || t.dueDate;
@@ -45,25 +46,21 @@ export const Analytics: React.FC<AnalyticsProps> = ({ tasks }) => {
     const dateObj = new Date(taskDateStr);
     const dayOfWeek = (dateObj.getDay() + 6) % 7; // Map 0 (Sun) -> 6, 1 (Mon) -> 0
 
+    totalTasksData[dayOfWeek] += 1;
     if (t.status === 'completed') {
-      taskData[dayOfWeek] += 1;
+      completedTasksData[dayOfWeek] += 1;
     }
-    const estHours = (t.estimatedMinutes || 45) / 60;
-    focusData[dayOfWeek] += Number(estHours.toFixed(1));
   });
 
   const totalCompleted = tasks.filter((t) => t.status === 'completed').length;
   const totalTasks = tasks.length;
-  const totalFocus = Number(focusData.reduce((a, b) => a + b, 0).toFixed(1));
-  const maxTaskVal = Math.max(...taskData);
-  const peakDayIndex = taskData.indexOf(maxTaskVal);
+  const maxTaskVal = Math.max(...completedTasksData);
+  const peakDayIndex = completedTasksData.indexOf(maxTaskVal);
   const peakDay = maxTaskVal > 0 ? labels[peakDayIndex] : 'N/A';
 
-  // 2. Analytical Score Calculation
+  // 2. Score Calculation: 1 completed task = 1 point (No division system)
   const completionRate = totalTasks > 0 ? Math.round((totalCompleted / totalTasks) * 100) : 0;
-  const urgentTasks = tasks.filter((t) => t.priority === 'urgent' && t.status !== 'completed').length;
-  const urgentScore = Math.max(0, 100 - urgentTasks * 15);
-  const productivityScore = Math.min(100, Math.round(completionRate * 0.7 + urgentScore * 0.3));
+  const productivityScore = totalCompleted;
 
   // 3. Priority Breakdown
   const priorities: { name: Priority; label: string; color: string; count: number }[] = [
@@ -102,17 +99,17 @@ export const Analytics: React.FC<AnalyticsProps> = ({ tasks }) => {
   if (activeMetric === 'all' || activeMetric === 'tasks') {
     series.push({
       type: 'bar' as const,
-      data: taskData,
-      label: 'Tasks Done',
+      data: totalTasksData,
+      label: 'Total Tasks',
       color: '#8B5CF6',
     });
   }
-  if (activeMetric === 'all' || activeMetric === 'focus') {
+  if (activeMetric === 'all' || activeMetric === 'completed') {
     series.push({
       type: 'bar' as const,
-      data: focusData,
-      label: 'Focus Hours',
-      color: '#06B6D4',
+      data: completedTasksData,
+      label: 'Completed Tasks',
+      color: '#34D399', // Light green
     });
   }
 
@@ -126,7 +123,7 @@ export const Analytics: React.FC<AnalyticsProps> = ({ tasks }) => {
             <span>Productivity & Task Analytics</span>
           </h2>
           <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginTop: '4px' }}>
-            Real-time insights into your task completion velocity, focus hours, category breakdown, and priority metrics.
+            Real-time insights into your task completion velocity, category breakdown, and priority metrics.
           </p>
         </div>
 
@@ -148,26 +145,26 @@ export const Analytics: React.FC<AnalyticsProps> = ({ tasks }) => {
           </div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
             <span style={{ fontSize: '32px', fontWeight: 800, color: 'var(--text-primary)' }}>{productivityScore}</span>
-            <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-muted)' }}>/ 100</span>
+            <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--accent-purple)' }}>PTS</span>
           </div>
-          <div style={{ fontSize: '12px', color: productivityScore >= 70 ? '#34D399' : '#F59E0B', fontWeight: 600 }}>
-            {productivityScore >= 70 ? '⚡ Outstanding momentum!' : '🎯 Steady focus rate'}
+          <div style={{ fontSize: '12px', color: '#34D399', fontWeight: 600 }}>
+            1 completed task = 1 point
           </div>
         </div>
 
-        {/* Total Focus Hours */}
+        {/* Total Tasks Done */}
         <div className="glass-panel" style={{ padding: '20px', borderRadius: '18px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-secondary)' }}>Total Focus Time</span>
-            <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'var(--grad-cyan)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FFF' }}>
-              <Clock size={18} />
+            <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-secondary)' }}>Completed Tasks</span>
+            <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'linear-gradient(135deg, #34D399, #059669)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FFF' }}>
+              <CheckCircle2 size={18} />
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-            <span style={{ fontSize: '32px', fontWeight: 800, color: 'var(--text-primary)' }}>{totalFocus}h</span>
+            <span style={{ fontSize: '32px', fontWeight: 800, color: 'var(--text-primary)' }}>{totalCompleted}</span>
           </div>
           <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-            Peak Day: <strong style={{ color: '#38BDF8' }}>{peakDay}</strong>
+            Peak Completion Day: <strong style={{ color: '#34D399' }}>{peakDay}</strong>
           </div>
         </div>
 
@@ -205,7 +202,7 @@ export const Analytics: React.FC<AnalyticsProps> = ({ tasks }) => {
         </div>
       </div>
 
-      {/* Main Grid: Weekly Productivity Graph & Category Breakdown */}
+      {/* Main Grid: Weekly Task & Completion Graph & Category Breakdown */}
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
         {/* Weekly Productivity Bar Chart */}
         <div
@@ -222,18 +219,18 @@ export const Analytics: React.FC<AnalyticsProps> = ({ tasks }) => {
             <div>
               <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <BarChart3 size={18} color="#8B5CF6" />
-                <span>Weekly Task & Focus Graph</span>
+                <span>Weekly Task & Completion Graph</span>
               </h3>
               <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: 'var(--text-secondary)' }}>
-                Comparison of daily task completion velocity and estimated focus hours
+                Comparison of total tasks and completed tasks by day of week
               </p>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(0, 0, 0, 0.25)', padding: '3px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
               {[
                 { id: 'all', label: 'All' },
-                { id: 'tasks', label: 'Tasks' },
-                { id: 'focus', label: 'Focus' },
+                { id: 'tasks', label: 'Total' },
+                { id: 'completed', label: 'Completed' },
               ].map((item) => (
                 <button
                   key={item.id}
