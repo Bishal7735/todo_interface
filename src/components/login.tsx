@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import {
   Sparkles,
   Mail,
@@ -684,7 +685,10 @@ export interface AuthToast {
 }
 
 export const AuthPage: React.FC<AuthProps> = ({ onLoginSuccess }) => {
-  const [mode, setMode] = useState<'login' | 'register'>('login');
+  const location = useLocation();
+  const [mode, setMode] = useState<'login' | 'register'>(() => {
+    return location.pathname === '/register' || location.search.includes('register') ? 'register' : 'login';
+  });
   const [toasts, setToasts] = useState<AuthToast[]>([]);
 
   const addToast = (title: string, message: string, type: 'success' | 'error' | 'info' = 'success') => {

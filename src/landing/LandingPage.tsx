@@ -16,6 +16,7 @@ import {
 import { Container, Chip } from '@mui/material';
 
 const LiquidEther = lazy(() => import('./LiquidEther'));
+const Demo = lazy(() => import('./demo'));
 
 export interface Review {
   id: string;
@@ -1101,6 +1102,11 @@ export const LandingPage: React.FC = () => {
           </div>
         </Container>
       </section>
+
+      {/* Interactive Demo Sandbox Section */}
+      <Suspense fallback={null}>
+        <Demo />
+      </Suspense>
 
       {/* User Reviews Section (Replaced Pricing) */}
       <section className="reviews-section" id="reviews">
