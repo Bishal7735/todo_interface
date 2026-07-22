@@ -1,4 +1,4 @@
-import { axiosInstance } from './interpreter';
+import { axiosInstance } from './interceptor';
 import type { Task, Category, Priority, TaskStatus } from '../types/todo';
 
 const TOKEN_KEY = 'accessToken';
