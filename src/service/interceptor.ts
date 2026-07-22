@@ -1,3 +1,4 @@
+
 import axios, {
   AxiosError,
   InternalAxiosRequestConfig,
@@ -43,12 +44,18 @@ api.interceptors.response.use(
   async (error: AxiosError) => {
     const originalRequest: any = error.config;
 
-    // Don't retry infinitely or for refresh endpoint itself
+    const requestUrl = originalRequest?.url || '';
+    const isAuthEndpoint =
+      requestUrl.includes('/auth/login') ||
+      requestUrl.includes('/auth/register') ||
+      requestUrl.includes('/auth/refresh');
+
+    // Don't retry for auth endpoints (login/register/refresh) or if already retried
     if (
       error.response?.status === 401 &&
       originalRequest &&
       !originalRequest._retry &&
-      originalRequest.url !== '/auth/refresh'
+      !isAuthEndpoint
     ) {
       originalRequest._retry = true;
 

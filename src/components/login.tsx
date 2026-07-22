@@ -611,17 +611,21 @@ const AUTH_STYLES = `
 
 .auth-toast-container {
   position: fixed;
-  top: 24px;
-  left: 50%;
-  transform: translateX(-50%);
+  bottom: 24px;
+  right: 24px;
   z-index: 9999;
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  flex-direction: column-reverse;
+  align-items: flex-end;
   gap: 10px;
   pointer-events: none;
   width: auto;
   max-width: calc(100vw - 32px);
+}
+
+@keyframes toastSlideIn {
+  0% { transform: translateY(20px) scale(0.95); opacity: 0; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
 }
 
 .auth-toast-item {
@@ -662,6 +666,7 @@ const AUTH_STYLES = `
     bottom: 16px;
     right: 16px;
     left: 16px;
+    align-items: center;
   }
   .auth-toast-item {
     min-width: unset;
@@ -936,12 +941,6 @@ export const LoginSection: React.FC<LoginSectionProps> = ({
 
   return (
     <form className="auth-form-body" onSubmit={handleSubmit} autoComplete="off">
-      {error && (
-        <div className="error-alert-box">
-          <AlertCircle size={18} />
-          <span>{error}</span>
-        </div>
-      )}
 
       <div className="input-field-group">
         <label className="field-label">Email Address</label>
@@ -1117,12 +1116,6 @@ export const RegisterSection: React.FC<RegisterSectionProps> = ({
 
   return (
     <form className="auth-form-body" onSubmit={handleSubmit} autoComplete="off">
-      {error && (
-        <div className="error-alert-box">
-          <AlertCircle size={18} />
-          <span>{error}</span>
-        </div>
-      )}
 
       <div className="input-field-group">
         <label className="field-label">Full Name</label>

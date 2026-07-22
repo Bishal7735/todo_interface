@@ -45,21 +45,30 @@ export const removeTokens = (): void => {
 
 // Auth API Methods
 export const login = async (email: string, password: string): Promise<AuthResponse> => {
-  const res: any = await api.post('/auth/login', { email, password });
-  const responseData = res?.data || res;
+  try {
+    const res: any = await api.post('/auth/login', { email, password });
+    const responseData = res?.data || res;
 
-  if (typeof responseData === 'string') {
-    throw new Error(responseData);
+    if (typeof responseData === 'string') {
+      throw new Error(responseData);
+    }
+
+    const token = responseData?.accessToken || responseData?.token;
+    if (!token) {
+      throw new Error('Login failed: Invalid email or password');
+    }
+
+    setToken(token);
+    if (responseData.refreshToken) setRefreshToken(responseData.refreshToken);
+    return responseData;
+  } catch (error: any) {
+    const message =
+      error?.response?.data?.message ||
+      (typeof error?.response?.data === 'string' ? error.response.data : null) ||
+      error?.message ||
+      'Login failed';
+    throw new Error(message);
   }
-
-  const token = responseData?.accessToken || responseData?.token;
-  if (!token) {
-    throw new Error('Login failed: Invalid email or password');
-  }
-
-  setToken(token);
-  if (responseData.refreshToken) setRefreshToken(responseData.refreshToken);
-  return responseData;
 };
 
 export const register = async (
@@ -68,31 +77,40 @@ export const register = async (
   password: string,
   mobileNumber?: string
 ): Promise<AuthResponse> => {
-  const nameParts = fullName.trim().split(/\s+/);
-  const first_name = nameParts[0] || '';
-  const last_name = nameParts.slice(1).join(' ') || '';
+  try {
+    const nameParts = fullName.trim().split(/\s+/);
+    const first_name = nameParts[0] || '';
+    const last_name = nameParts.slice(1).join(' ') || '';
 
-  const res: any = await api.post('/auth/register', {
-    first_name,
-    last_name,
-    email,
-    password,
-    mob_number: mobileNumber || '',
-  });
-  const responseData = res?.data || res;
+    const res: any = await api.post('/auth/register', {
+      first_name,
+      last_name,
+      email,
+      password,
+      mob_number: mobileNumber || '',
+    });
+    const responseData = res?.data || res;
 
-  if (typeof responseData === 'string') {
-    throw new Error(responseData);
+    if (typeof responseData === 'string') {
+      throw new Error(responseData);
+    }
+
+    const token = responseData?.accessToken || responseData?.token;
+    if (!token) {
+      throw new Error('Registration failed: Unable to obtain access token');
+    }
+
+    setToken(token);
+    if (responseData.refreshToken) setRefreshToken(responseData.refreshToken);
+    return responseData;
+  } catch (error: any) {
+    const message =
+      error?.response?.data?.message ||
+      (typeof error?.response?.data === 'string' ? error.response.data : null) ||
+      error?.message ||
+      'Registration failed';
+    throw new Error(message);
   }
-
-  const token = responseData?.accessToken || responseData?.token;
-  if (!token) {
-    throw new Error('Registration failed: Unable to obtain access token');
-  }
-
-  setToken(token);
-  if (responseData.refreshToken) setRefreshToken(responseData.refreshToken);
-  return responseData;
 };
 
 export const authService = {

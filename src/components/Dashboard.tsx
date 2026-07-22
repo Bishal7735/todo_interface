@@ -6,6 +6,7 @@ import { Settings as SettingsComponent } from './Settings';
 import { Analytics as AnalyticsComponent } from './Analytics';
 import { Tasks as TasksComponent } from './Tasks';
 import { useTabFocusTime } from '../services/focusTracker';
+import NeuralNoise from './NeuralNoise';
 import {
   ChartsContainer,
   BarPlot,
@@ -365,7 +366,9 @@ body {
 
 .sidebar {
   width: 200px;
-  background-color: var(--bg-secondary);
+  background: rgba(17, 24, 39, 0.55);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-right: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
@@ -374,6 +377,12 @@ body {
   z-index: 100;
   overflow: hidden;
   position: relative;
+}
+
+.light-theme .sidebar {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
 .sidebar.collapsed {
@@ -530,12 +539,20 @@ body {
 
 .header {
   padding: 8px 24px;
-  background-color: var(--bg-secondary);
+  background: rgba(17, 24, 39, 0.55);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 20px;
+}
+
+.light-theme .header {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
 .header-top-bar {
@@ -555,8 +572,67 @@ body {
   display: none !important;
 }
 
-.mobile-header-brand {
-  display: none !important;
+.header-brand-badge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-logo-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  background: var(--grad-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.4);
+  flex-shrink: 0;
+}
+
+.header-brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.header-brand-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.brand-name {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+  background: linear-gradient(90deg, #8B5CF6 0%, #06B6D4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.brand-pill {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: rgba(139, 92, 246, 0.15);
+  color: #A78BFA;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.header-slogan {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.2px;
+}
+
+@media (max-width: 640px) {
+  .header-slogan {
+    display: none;
+  }
 }
 
 .mobile-sidebar-close-btn {
@@ -954,9 +1030,16 @@ body {
 }
 
 .tasks-list-view {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .tasks-list-view {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
 }
 
 .task-card {
@@ -1943,28 +2026,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <aside className={`sidebar${collapsed ? ' collapsed' : ''}${mobileOpen ? ' mobile-open' : ''}`}>
-      {/* Logo & Mobile Close */}
-      <div className="sidebar-logo">
-        <div className="logo-icon" style={{ flexShrink: 0 }}>
-          <Sparkles size={22} />
-        </div>
-        {(!collapsed || mobileOpen) && (
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span className="logo-text">ListiFy 2.0</span>
-            <span className="logo-subtitle" style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600 }}>Pro Workspace</span>
-          </div>
-        )}
-        {onCloseMobile && (
+      {/* Mobile Close Button */}
+      {mobileOpen && (
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
           <button
-            className="mobile-sidebar-close-btn"
             onClick={onCloseMobile}
-            title="Close Menu"
-            aria-label="Close navigation sidebar"
+            className="mobile-sidebar-close-btn"
+            style={{ display: 'flex' }}
+            aria-label="Close sidebar"
           >
-            <X size={20} />
+            <X size={18} />
           </button>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Nav Items */}
       <ul className="nav-list">
@@ -2040,6 +2114,7 @@ interface HeaderProps {
   onToggleTheme: () => void;
   tasks?: Task[];
   onToggleMobileSidebar?: () => void;
+  user?: User | null;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -2050,51 +2125,41 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleTheme,
   tasks = [],
   onToggleMobileSidebar,
+  user,
 }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [readIds, setReadIds] = useState<string[]>([]);
+  const [clearedIds, setClearedIds] = useState<string[]>([]);
 
-  // Compute dynamic notifications from current workspace tasks & activity
-  const dynamicNotifications = React.useMemo(() => {
-    const items: { id: string; title: string; message: string; time: string; type: 'urgent' | 'info' | 'success' }[] = [];
+  const userName = user?.name || 'User';
 
-    const urgentTasks = tasks.filter((t) => t.priority === 'urgent' && t.status !== 'completed');
-    urgentTasks.forEach((t) => {
-      items.push({
-        id: `urgent-${t.id}`,
-        title: '🔴 Urgent Task Due',
-        message: `Task "${t.title}" is urgent and pending completion.`,
-        time: 'Active Alert',
-        type: 'urgent',
-      });
-    });
+  // Strictly only the welcome notification by default
+  const notificationsList = React.useMemo(() => {
+    return [
+      {
+        id: 'welcome-notification',
+        title: 'Welcome 👋',
+        message: `Welcome ${userName} 👋`,
+        time: 'Just now',
+        type: 'info' as const,
+      },
+    ];
+  }, [userName]);
 
-    const completedTasks = tasks.filter((t) => t.status === 'completed');
-    if (completedTasks.length > 0) {
-      items.push({
-        id: 'completed-milestone',
-        title: '⚡ Productivity Streak',
-        message: `Awesome! You have completed ${completedTasks.length} tasks in your workspace.`,
-        time: 'Today',
-        type: 'success',
-      });
-    }
-
-    items.push({
-      id: 'welcome-tip',
-      title: '✨ Live Intelligence Active',
-      message: 'Active tab focus duration is automatically tracked and saved in your database.',
-      time: 'System',
-      type: 'info',
-    });
-
-    return items;
-  }, [tasks]);
-
-  const unreadCount = dynamicNotifications.filter((n) => !readIds.includes(n.id)).length;
+  const activeNotifications = notificationsList.filter((n) => !clearedIds.includes(n.id));
+  const unreadCount = activeNotifications.filter((n) => !readIds.includes(n.id)).length;
 
   const handleMarkAllRead = () => {
-    setReadIds(dynamicNotifications.map((n) => n.id));
+    setReadIds(activeNotifications.map((n) => n.id));
+  };
+
+  const handleClearAll = () => {
+    setClearedIds(notificationsList.map((n) => n.id));
+  };
+
+  const handleClearSingle = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setClearedIds((prev) => [...prev, id]);
   };
 
   return (
@@ -2111,11 +2176,18 @@ export const Header: React.FC<HeaderProps> = ({
               <MoreVertical size={20} />
             </button>
           )}
-          <div className="mobile-header-brand">
-            <Sparkles size={20} color="var(--accent-purple)" style={{ flexShrink: 0 }} />
-            <span style={{ fontWeight: 800, fontSize: '16px', background: 'linear-gradient(90deg, #8B5CF6, #06B6D4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              ListiFy 2.0
-            </span>
+
+          <div className="header-brand-badge">
+            <div className="header-logo-icon">
+              <Sparkles size={20} color="#FFFFFF" />
+            </div>
+            <div className="header-brand-text">
+              <div className="header-brand-title">
+                <span className="brand-name">ListiFy 2.0</span>
+                {/* <span className="brand-pill">PRO</span> */}
+              </div>
+              <span className="header-slogan">Master Your Tasks, Elevate Your Flow ⚡</span>
+            </div>
           </div>
         </div>
 
@@ -2182,63 +2254,108 @@ export const Header: React.FC<HeaderProps> = ({
                   display: 'flex',
                   flexDirection: 'column',
                   gap: '12px',
-                  boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
-                  border: '1px solid var(--border-color)',
-                  background: 'var(--bg-secondary)',
+                  boxShadow: '0 20px 40px rgba(0, 0, 0, 0.6)',
+                  border: '1px solid rgba(255, 255, 255, 0.15)',
+                  background: 'rgba(15, 23, 42, 0.96)',
+                  backdropFilter: 'blur(20px)',
+                  WebkitBackdropFilter: 'blur(20px)',
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <span style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text-primary)' }}>
-                    Workspace Notifications
+                  <span style={{ fontSize: '14px', fontWeight: 800, color: '#FFFFFF' }}>
+                    Notifications
                   </span>
-                  {unreadCount > 0 && (
-                    <button
-                      onClick={handleMarkAllRead}
-                      style={{
-                        background: 'transparent',
-                        border: 'none',
-                        color: 'var(--accent-purple)',
-                        fontSize: '11px',
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                      }}
-                    >
-                      Mark all read
-                    </button>
-                  )}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {unreadCount > 0 && (
+                      <button
+                        onClick={handleMarkAllRead}
+                        style={{
+                          background: 'transparent',
+                          border: 'none',
+                          color: '#A78BFA',
+                          fontSize: '11px',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        Mark all read
+                      </button>
+                    )}
+                    {activeNotifications.length > 0 && (
+                      <button
+                        onClick={handleClearAll}
+                        style={{
+                          background: 'transparent',
+                          border: 'none',
+                          color: '#FB7185',
+                          fontSize: '11px',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        Clear all
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {dynamicNotifications.map((item) => {
-                    const isRead = readIds.includes(item.id);
-                    return (
-                      <div
-                        key={item.id}
-                        onClick={() => setReadIds((prev) => [...prev, item.id])}
-                        style={{
-                          padding: '10px 12px',
-                          borderRadius: '10px',
-                          background: isRead ? 'rgba(255, 255, 255, 0.02)' : 'var(--bg-input)',
-                          border: '1px solid var(--border-color)',
-                          opacity: isRead ? 0.65 : 1,
-                          cursor: 'pointer',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          gap: '4px',
-                        }}
-                      >
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                          <span style={{ fontSize: '12px', fontWeight: 700, color: item.type === 'urgent' ? '#F43F5E' : item.type === 'success' ? '#34D399' : 'var(--accent-cyan)' }}>
-                            {item.title}
-                          </span>
-                          <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{item.time}</span>
+                  {activeNotifications.length === 0 ? (
+                    <div style={{ padding: '16px', textAlign: 'center', color: '#94A3B8', fontSize: '12px', fontWeight: 600 }}>
+                      No notifications right now
+                    </div>
+                  ) : (
+                    activeNotifications.map((item) => {
+                      const isRead = readIds.includes(item.id);
+                      return (
+                        <div
+                          key={item.id}
+                          onClick={() => setReadIds((prev) => [...prev, item.id])}
+                          style={{
+                            padding: '12px 14px',
+                            borderRadius: '12px',
+                            background: isRead ? 'rgba(255, 255, 255, 0.04)' : 'rgba(30, 41, 59, 0.9)',
+                            border: '1px solid rgba(255, 255, 255, 0.12)',
+                            opacity: isRead ? 0.75 : 1,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            gap: '8px',
+                          }}
+                        >
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                              <span style={{ fontSize: '13px', fontWeight: 800, color: '#38BDF8' }}>
+                                {item.title}
+                              </span>
+                              <span style={{ fontSize: '10px', color: '#94A3B8', fontWeight: 600 }}>{item.time}</span>
+                            </div>
+                            <p style={{ fontSize: '13px', color: '#FFFFFF', fontWeight: 600, margin: 0, lineHeight: 1.4 }}>
+                              {item.message}
+                            </p>
+                          </div>
+                          <button
+                            onClick={(e) => handleClearSingle(item.id, e)}
+                            title="Clear notification"
+                            style={{
+                              background: 'rgba(255, 255, 255, 0.08)',
+                              border: 'none',
+                              color: '#94A3B8',
+                              cursor: 'pointer',
+                              padding: '5px',
+                              borderRadius: '6px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}
+                          >
+                            <X size={14} />
+                          </button>
                         </div>
-                        <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>
-                          {item.message}
-                        </p>
-                      </div>
-                    );
-                  })}
+                      );
+                    })
+                  )}
                 </div>
               </div>
             )}
@@ -3678,6 +3795,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, onUpdateUs
         onClick={() => setMobileSidebarOpen(false)}
       />
 
+      {/* Animated Neural Noise background matching website colors */}
+      <div style={{ position: 'fixed', inset: 0, width: '100vw', height: '100vh', zIndex: 0, pointerEvents: 'none', overflow: 'hidden' }}>
+        <NeuralNoise primaryColor="#8B5CF6" secondaryColor="#06B6D4" backgroundColor="#050713" speed={0.5} scale={1.2} opacity={0.65} />
+      </div>
+
       {/* Animated gradient orbs background */}
       <div className="bg-orbs" aria-hidden="true">
         <div className="bg-orb bg-orb-1" />
@@ -3702,6 +3824,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, onUpdateUs
 
       <main className="dashboard-main">
         <Header
+          user={user}
           searchTerm={filter.search}
           onSearchChange={(value) => handleUpdateFilter({ search: value })}
           onOpenNewTaskModal={handleOpenNewTaskModal}
