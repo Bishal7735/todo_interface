@@ -1,3 +1,9 @@
+// ==========================================
+// ANALYTICS & METRICS DASHBOARD SECTION (React)
+// This component displays workspace productivity charts, focus time metrics,
+// task completion percentages, and category breakdown graphs using @mui/x-charts.
+// ==========================================
+
 import React, { useState } from 'react';
 import type { Task, Category, Priority } from '../types/todo';
 import { useTabFocusTime } from '../services/focusTracker';

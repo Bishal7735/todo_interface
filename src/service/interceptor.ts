@@ -1,3 +1,9 @@
+// ==========================================
+// AXIOS INTERCEPTOR SERVICE (Frontend)
+// This file configures HTTP requests sent to the backend server.
+// It automatically attaches JWT access tokens to requests and
+// handles automatic token refreshing when an access token expires.
+// ==========================================
 
 import axios, {
   AxiosError,
@@ -10,9 +16,10 @@ import {
   removeTokens,
 } from './auth';
 
+// Base backend URL from environment variables or fallback to port 4000
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
 
-// Create Axios Instances
+// Main Axios instance used for protected API calls
 export const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -20,6 +27,7 @@ export const api = axios.create({
   },
 });
 
+// Dedicated Axios instance for refreshing tokens (avoids infinite interceptor loops)
 export const refreshApi = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -27,7 +35,10 @@ export const refreshApi = axios.create({
   },
 });
 
-// Request Interceptor: Attach Bearer access token to every outgoing request
+// ------------------------------------------
+// REQUEST INTERCEPTOR
+// Automatically attaches Bearer JWT access token to every outgoing request header
+// ------------------------------------------
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const token = getToken();
 
@@ -38,19 +49,26 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   return config;
 });
 
-// Response Interceptor: Handle 401 Unauthorized & perform token refresh retry
+// ------------------------------------------
+// RESPONSE INTERCEPTOR
+// Handles 401 Unauthorized errors and automatically refreshes access token
+// ------------------------------------------
 api.interceptors.response.use(
+  // Automatically unpack response data on successful API response
   (response) => response.data,
+
+  // Error handling logic
   async (error: AxiosError) => {
     const originalRequest: any = error.config;
-
     const requestUrl = originalRequest?.url || '';
+
+    // Check if the failed request was an authentication request (login, register, refresh)
     const isAuthEndpoint =
       requestUrl.includes('/auth/login') ||
       requestUrl.includes('/auth/register') ||
       requestUrl.includes('/auth/refresh');
 
-    // Don't retry for auth endpoints (login/register/refresh) or if already retried
+    // If server returned 401 (token expired) and request is NOT a login/register/refresh endpoint
     if (
       error.response?.status === 401 &&
       originalRequest &&
@@ -66,6 +84,7 @@ api.interceptors.response.use(
           throw new Error('No refresh token available');
         }
 
+        // Request a new access token using the stored refresh token
         const response: any = await refreshApi.post('/auth/refresh', {
           refreshToken,
         });
@@ -77,14 +96,14 @@ api.interceptors.response.use(
           throw new Error('No access token returned from refresh endpoint');
         }
 
+        // Save new access token to localStorage
         setToken(newAccessToken);
 
-        // Update header for retried request
+        // Attach new access token to the failed original request header and retry it
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-
-        // Retry original request
         return api(originalRequest);
       } catch (refreshError) {
+        // If refresh token is expired or invalid, log out the user safely
         removeTokens();
 
         if (
@@ -99,9 +118,11 @@ api.interceptors.response.use(
       }
     }
 
+    // Return all other error responses directly to the caller
     return Promise.reject(error);
   }
 );
 
+// Export aliases for backward compatibility across components
 export { api as axiosInstance };
 export default api;

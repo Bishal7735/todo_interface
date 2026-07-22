@@ -1,3 +1,10 @@
+// ==========================================
+// USER SETTINGS & PREFERENCES SECTION (React)
+// This component manages user profile updates (name, role, phone number),
+// workspace appearance themes (Dark / Light mode toggle), default task sorting,
+// and session logout / account security actions.
+// ==========================================
+
 import React, { useState } from 'react';
 import type { User, FilterState, ViewMode, SortBy } from '../types/todo';
 import {

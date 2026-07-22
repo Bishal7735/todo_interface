@@ -1,13 +1,20 @@
+// ==========================================
+// NEURAL NOISE WEBGL SHADER BACKGROUND COMPONENT
+// This component renders an animated WebGL fluid noise canvas background using OGL.
+// It animates smooth glowing waves using website theme colors (#8B5CF6 Violet & #06B6D4 Cyan).
+// ==========================================
+
 import React, { useEffect, useRef } from 'react';
 import { Renderer, Program, Mesh, Color, Triangle } from 'ogl';
 
+// Props passed to customize shader colors, animation speed, scale, and opacity
 interface NeuralNoiseProps {
-  primaryColor?: string;   // Website main accent (default: Indigo/Violet #8B5CF6)
-  secondaryColor?: string; // Website secondary glow (default: Cyan #06B6D4)
-  backgroundColor?: string;// Website dark space background (default: #050713)
-  speed?: number;
-  scale?: number;
-  opacity?: number;
+  primaryColor?: string;   // Website main accent color (default: Violet #8B5CF6)
+  secondaryColor?: string; // Website secondary glow color (default: Cyan #06B6D4)
+  backgroundColor?: string;// Website dark space background color (default: #050713)
+  speed?: number;          // Animation speed multiplier
+  scale?: number;          // Noise wave density scale
+  opacity?: number;        // Overall canvas opacity
 }
 
 export const NeuralNoise: React.FC<NeuralNoiseProps> = ({
@@ -24,9 +31,11 @@ export const NeuralNoise: React.FC<NeuralNoiseProps> = ({
     if (!containerRef.current) return;
     const container = containerRef.current;
 
+    // Initialize OGL WebGL Renderer with alpha transparency enabled
     const renderer = new Renderer({ alpha: true, dpr: Math.min(window.devicePixelRatio, 2) });
     const gl = renderer.gl;
 
+    // Attach full-viewport CSS styles to the WebGL canvas element
     const canvas = gl.canvas;
     canvas.style.width = '100%';
     canvas.style.height = '100%';
@@ -38,8 +47,10 @@ export const NeuralNoise: React.FC<NeuralNoiseProps> = ({
 
     container.appendChild(canvas);
 
+    // Create full-screen triangle geometry covering GL clip space
     const geometry = new Triangle(gl);
 
+    // GLSL Vertex Shader: Computes screen positions and UV texture coordinates
     const vert = /* glsl */ `
       attribute vec2 uv;
       attribute vec2 position;
@@ -50,6 +61,7 @@ export const NeuralNoise: React.FC<NeuralNoiseProps> = ({
       }
     `;
 
+    // GLSL Fragment Shader: Calculates 2D simplex noise waves & mixes primary/secondary accent colors
     const frag = /* glsl */ `
       precision highp float;
       uniform float uTime;
@@ -63,6 +75,7 @@ export const NeuralNoise: React.FC<NeuralNoiseProps> = ({
       vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
       vec3 permute(vec3 x) { return mod289(((x*34.0)+1.0)*x); }
 
+      // 2D Simplex Noise function for natural fluid wave movement
       float snoise(vec2 v) {
         const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
         vec2 i  = floor(v + dot(v, C.yy));
@@ -92,7 +105,7 @@ export const NeuralNoise: React.FC<NeuralNoiseProps> = ({
         
         float blend = (n1 + n2 * 0.5) * 0.5 + 0.5;
         
-        // Dynamically blend between Primary & Secondary Website Accent Colors
+        // Dynamically blend between Primary (Violet) & Secondary (Cyan) Website Accent Colors
         vec3 noiseGlow = mix(uColor1, uColor2, sin(uTime * 0.15 + vUv.x * 2.5 + vUv.y * 1.5) * 0.5 + 0.5);
         
         float alpha = pow(blend, 1.2) * uOpacity;
@@ -100,6 +113,7 @@ export const NeuralNoise: React.FC<NeuralNoiseProps> = ({
       }
     `;
 
+    // Compile WebGL program with uniforms
     const program = new Program(gl, {
       vertex: vert,
       fragment: frag,
@@ -114,6 +128,7 @@ export const NeuralNoise: React.FC<NeuralNoiseProps> = ({
 
     const mesh = new Mesh(gl, { geometry, program });
 
+    // Auto-resize canvas when window size changes
     function resize() {
       if (!container) return;
       const width = container.clientWidth || window.innerWidth;
@@ -123,6 +138,7 @@ export const NeuralNoise: React.FC<NeuralNoiseProps> = ({
     window.addEventListener('resize', resize);
     resize();
 
+    // Render loop using requestAnimationFrame
     let animationId: number;
     function update(t: number) {
       animationId = requestAnimationFrame(update);
@@ -131,6 +147,7 @@ export const NeuralNoise: React.FC<NeuralNoiseProps> = ({
     }
     animationId = requestAnimationFrame(update);
 
+    // Cleanup resources on unmount
     return () => {
       window.removeEventListener('resize', resize);
       cancelAnimationFrame(animationId);

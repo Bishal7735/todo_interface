@@ -1,3 +1,10 @@
+// ==========================================
+// MAIN WORKSPACE DASHBOARD COMPONENT (React)
+// This is the core hub of the ListiFy workspace interface.
+// It integrates the Sidebar, Header, NeuralNoise background,
+// Workspace Task Lists, Analytics Graphs, and Task Creation Modals.
+// ==========================================
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import type { User } from '../types/todo';
@@ -2184,7 +2191,6 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="header-brand-text">
               <div className="header-brand-title">
                 <span className="brand-name">ListiFy 2.0</span>
-                {/* <span className="brand-pill">PRO</span> */}
               </div>
               <span className="header-slogan">Master Your Tasks, Elevate Your Flow ⚡</span>
             </div>

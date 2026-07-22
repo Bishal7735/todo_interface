@@ -1,7 +1,13 @@
+// ==========================================
+// TASK SERVICE & DATABASE API METHODS (Frontend)
+// This file handles task CRUD operations (Get, Create, Update, Delete)
+// and maps database models to React component task structures.
+// ==========================================
+
 import { axiosInstance } from './interceptor';
 import type { Task, Category, Priority, TaskStatus } from '../types/todo';
 
-// Backend Task Type Definitions
+// Backend Task Database Model Interface
 export interface BackendTask {
   id: number | string;
   external_id: string;
@@ -16,12 +22,17 @@ export interface BackendTask {
   updatedAt?: string;
 }
 
-// Mapper Function: Maps backend data structure to frontend Task type
+/**
+ * Mapper Function:
+ * Converts raw database task object returned by Sequelize ORM backend
+ * into clean React state Task object used by frontend components.
+ */
 export function mapBackendTaskToFrontend(bt: BackendTask): Task {
   const id = bt.external_id || String(bt.id);
   const title = bt.name || 'Untitled Task';
   const description = bt.description || '';
 
+  // Validate category string
   let category: Category = 'Work';
   const rawCategory = bt.notes || bt.category || 'Work';
   const validCategories: Category[] = ['Work', 'Personal', 'Design', 'Development', 'Health', 'Finance'];
@@ -29,12 +40,14 @@ export function mapBackendTaskToFrontend(bt: BackendTask): Task {
     category = rawCategory as Category;
   }
 
+  // Validate priority level
   let priority: Priority = 'medium';
   const rawPriority = (bt.priority || 'medium').toLowerCase();
   if (['low', 'medium', 'high', 'urgent'].includes(rawPriority)) {
     priority = rawPriority as Priority;
   }
 
+  // Map database status string to frontend task status
   let status: TaskStatus = 'todo';
   const rawStatus = (bt.status || 'Active').toLowerCase();
   if (rawStatus === 'completed' || rawStatus === 'done') {
@@ -60,12 +73,19 @@ export function mapBackendTaskToFrontend(bt: BackendTask): Task {
   };
 }
 
-// Task API Calls
+// ------------------------------------------
+// TASK API CALLS
+// ------------------------------------------
+
+/**
+ * Fetch all tasks created by the logged-in user from backend database.
+ */
 export const getAllTasks = async (): Promise<Task[]> => {
   try {
     const res: any = await axiosInstance.get('/task/getAllTask');
     let backendTasks: any[] = [];
 
+    // Safely extract task array from various response formats
     if (Array.isArray(res)) {
       backendTasks = res;
     } else if (res && Array.isArray(res.data)) {
@@ -84,6 +104,9 @@ export const getAllTasks = async (): Promise<Task[]> => {
   }
 };
 
+/**
+ * Create a new task in backend database.
+ */
 export const createTask = async (task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>): Promise<Task> => {
   const payload = {
     name: task.title,
@@ -106,6 +129,7 @@ export const createTask = async (task: Omit<Task, 'id' | 'createdAt' | 'updatedA
     console.warn('Backend createTask failed, using local task fallback:', err);
   }
 
+  // Fallback local task object if offline or database error occurs
   return {
     id: Date.now().toString(),
     ...task,
@@ -114,6 +138,9 @@ export const createTask = async (task: Omit<Task, 'id' | 'createdAt' | 'updatedA
   };
 };
 
+/**
+ * Update an existing task in backend database.
+ */
 export const updateTask = async (externalId: string, updates: Partial<Task>): Promise<void> => {
   try {
     const payload: Record<string, any> = {};
@@ -133,6 +160,9 @@ export const updateTask = async (externalId: string, updates: Partial<Task>): Pr
   }
 };
 
+/**
+ * Delete a task by ID from backend database.
+ */
 export const deleteTask = async (externalId: string): Promise<void> => {
   try {
     await axiosInstance.delete(`/task/delete/${externalId}`);
@@ -141,6 +171,9 @@ export const deleteTask = async (externalId: string): Promise<void> => {
   }
 };
 
+/**
+ * Sync focus tracking duration to backend database.
+ */
 export const syncFocusTime = async (date: string, minutes: number, seconds: number): Promise<void> => {
   try {
     await axiosInstance.post('/focus/sync', { date, minutes, seconds });
@@ -149,6 +182,9 @@ export const syncFocusTime = async (date: string, minutes: number, seconds: numb
   }
 };
 
+/**
+ * Fetch focus tracking stats history from backend database.
+ */
 export const getFocusTime = async (): Promise<Array<{ date: string; minutes: number; seconds: number }>> => {
   try {
     const res: any = await axiosInstance.get('/focus');

@@ -1,3 +1,10 @@
+// ==========================================
+// TASKS SECTION COMPONENT (React)
+// This component renders the full "My Tasks" section page in the workspace.
+// It includes page title headers, task action buttons, category/status filters,
+// and the main task list container (grid or 2-column list view).
+// ==========================================
+
 import React from 'react';
 import type { Task, FilterState } from '../types/todo';
 import { TaskFilter, TaskList } from './Dashboard';
@@ -32,7 +39,7 @@ export const Tasks: React.FC<TasksProps> = ({
 }) => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      {/* Tasks Page Header */}
+      {/* Tasks Page Title & Create Button Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
         <div>
           <h2 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '10px', margin: 0 }}>
@@ -55,10 +62,10 @@ export const Tasks: React.FC<TasksProps> = ({
         </div>
       </div>
 
-      {/* Task Filter Toolbar */}
+      {/* Category, Status, Priority & View Mode Filter Toolbar */}
       <TaskFilter filter={filter} onUpdateFilter={onUpdateFilter} />
 
-      {/* Task List / Workspace */}
+      {/* Main Task List Grid & Cards Container */}
       <TaskList
         tasks={filteredTasks}
         viewMode={filter.viewMode}

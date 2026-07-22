@@ -1,13 +1,22 @@
+// ==========================================
+// ACTIVE TAB FOCUS TIME TRACKER HOOK
+// This file automatically tracks the total time (in minutes and seconds)
+// the user spends actively viewing and working on the application.
+// It syncs focus duration to localStorage and the backend database.
+// ==========================================
+
 import { useState, useEffect, useRef } from 'react';
 import { syncFocusTime, getFocusTime } from '../service/task';
 import { getToken } from '../service/auth';
 
 const STORAGE_KEY = 'listify_tab_focus_time_v1';
 
+// Mapping structure: Date string ("2026-07-22") -> total focus seconds
 export interface DailyFocusMap {
-  [dateStr: string]: number; // date YYYY-MM-DD -> seconds
+  [dateStr: string]: number;
 }
 
+// Read focus map from browser localStorage
 export const getStoredFocusTime = (): DailyFocusMap => {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -17,6 +26,7 @@ export const getStoredFocusTime = (): DailyFocusMap => {
   }
 };
 
+// Save focus map to browser localStorage
 export const saveFocusTime = (data: DailyFocusMap) => {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
@@ -25,6 +35,7 @@ export const saveFocusTime = (data: DailyFocusMap) => {
   }
 };
 
+// Helper: Get today's date formatted as YYYY-MM-DD
 export const getTodayStr = (): string => {
   const d = new Date();
   const year = d.getFullYear();
@@ -34,7 +45,7 @@ export const getTodayStr = (): string => {
 };
 
 /**
- * Flush focus time to backend database (works synchronously during pageunload / tab close)
+ * Flush focus time to backend database during page unload / tab close
  */
 export const flushFocusTimeToDatabase = (dateStr: string, seconds: number) => {
   const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
@@ -45,6 +56,7 @@ export const flushFocusTimeToDatabase = (dateStr: string, seconds: number) => {
     minutes: Math.floor(seconds / 60),
   });
 
+  // Use browser sendBeacon API if available for safe background delivery
   if (navigator.sendBeacon) {
     const blob = new Blob([payload], { type: 'application/json' });
     navigator.sendBeacon(`${API_BASE_URL}/focus/sync`, blob);
@@ -62,18 +74,18 @@ export const flushFocusTimeToDatabase = (dateStr: string, seconds: number) => {
 };
 
 /**
- * Custom Hook to track active tab focus time in minutes, sync with database, and handle tab closing
+ * React Hook: Tracks active workspace focus time in real time.
  */
 export const useTabFocusTime = () => {
   const [focusMap, setFocusMap] = useState<DailyFocusMap>(getStoredFocusTime);
   const focusMapRef = useRef<DailyFocusMap>(focusMap);
 
-  // Keep ref synchronized with state for unload event handlers
+  // Keep ref synchronized with state for unload event listeners
   useEffect(() => {
     focusMapRef.current = focusMap;
   }, [focusMap]);
 
-  // Load user's focus time from database on mount & merge
+  // Fetch initial focus records from backend database on mount
   useEffect(() => {
     let isMounted = true;
     getFocusTime().then((records) => {
@@ -96,7 +108,7 @@ export const useTabFocusTime = () => {
     };
   }, []);
 
-  // Interval timer & tab unload listener to save focus time to database upon closing
+  // Timer interval: Increments focus time by +1 second while tab is visible
   useEffect(() => {
     const interval = setInterval(() => {
       if (document.visibilityState === 'visible') {
@@ -107,7 +119,7 @@ export const useTabFocusTime = () => {
           const updated = { ...prev, [today]: updatedSecs };
           saveFocusTime(updated);
           
-          // Sync to backend every 10 seconds
+          // Auto-sync to backend database every 10 seconds
           if (updatedSecs % 10 === 0) {
             syncFocusTime(today, Math.floor(updatedSecs / 60), updatedSecs);
           }
@@ -141,7 +153,7 @@ export const useTabFocusTime = () => {
     };
   }, []);
 
-  // Calculate focus minutes for current week (Mon-Sun)
+  // Compute daily focus minutes for the current week (Mon-Sun)
   const getWeeklyFocusMinutes = (): number[] => {
     const now = new Date();
     const dayOfWeek = (now.getDay() + 6) % 7; // Mon: 0, Sun: 6
