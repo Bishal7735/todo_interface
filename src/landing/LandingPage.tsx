@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { Container, Chip } from '@mui/material';
 
-import Galaxy from './Galaxy';
+import LiquidEther from './LiquidEther';
 
 export interface Review {
   id: string;
@@ -91,8 +91,11 @@ const LANDING_STYLES = `
 .landing-orb {
   position: absolute;
   border-radius: 50%;
-  filter: blur(150px);
+  filter: blur(120px);
   opacity: 0.35;
+  will-change: transform;
+  transform: translateZ(0);
+  pointer-events: none;
   animation: floatLandingOrb 25s ease-in-out infinite alternate;
 }
 
@@ -907,20 +910,21 @@ export const LandingPage: React.FC = () => {
       </div>
 
       <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0, pointerEvents: 'none', opacity: 0.85 }}>
-        <Galaxy
-          mouseRepulsion
-          mouseInteraction
-          density={1}
-          glowIntensity={0.3}
-          saturation={0}
-          hueShift={140}
-          twinkleIntensity={0.3}
-          rotationSpeed={0.1}
-          repulsionStrength={2}
-          autoCenterRepulsion={0}
-          starSpeed={0.5}
-          speed={1}
-          transparent={true}
+        <LiquidEther
+          mouseForce={20}
+          cursorSize={100}
+          isViscous
+          viscous={30}
+          iterationsViscous={32}
+          iterationsPoisson={32}
+          resolution={0.5}
+          isBounce
+          autoDemo
+          autoSpeed={0.5}
+          autoIntensity={2.2}
+          takeoverDuration={0.25}
+          autoResumeDelay={3000}
+          autoRampDuration={0.6}
         />
       </div>
 

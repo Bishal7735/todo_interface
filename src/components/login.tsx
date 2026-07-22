@@ -12,12 +12,11 @@ import {
   AlertCircle,
   Zap,
   TrendingUp,
-  Flame,
   Phone,
   X
 } from 'lucide-react';
 import type { User } from '../types/todo';
-import { api } from '../services/interpreter';
+import { login, register } from '../service/auth';
 import SoftAurora from './SoftAurora';
 
 interface AuthProps {
@@ -904,7 +903,7 @@ export const LoginSection: React.FC<LoginSectionProps> = ({
     setError(null);
 
     try {
-      const res = await api.login(email.trim(), password);
+      const res = await login(email.trim(), password);
       const nameFromApi = res.user?.name || email.split('@')[0];
       const initials = nameFromApi
         .split(' ')
@@ -1084,7 +1083,7 @@ export const RegisterSection: React.FC<RegisterSectionProps> = ({
     setError(null);
 
     try {
-      const res = await api.register(fullName.trim(), email.trim(), password, mobileNumber.trim());
+      const res = await register(fullName.trim(), email.trim(), password, mobileNumber.trim());
       const nameFromApi = res.user?.name || fullName.trim();
       const initials = nameFromApi
         .split(' ')

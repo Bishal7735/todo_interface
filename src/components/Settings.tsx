@@ -233,7 +233,7 @@ export const Settings: React.FC<SettingsProps> = ({
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
               <span style={{ fontSize: '16px', fontWeight: 800, color: 'var(--text-primary)' }}>{name || 'User Name'}</span>
-              <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{role} • {email}</span>
+              <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{email}</span>
             </div>
           </div>
 
@@ -267,34 +267,21 @@ export const Settings: React.FC<SettingsProps> = ({
                 <Mail size={16} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
               </div>
             </div>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <label style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-secondary)' }}>Job Title / Role</label>
-              <div style={{ position: 'relative' }}>
-                <input
-                  type="text"
-                  className="styled-input"
-                  value={role}
-                  onChange={(e) => setRole(e.target.value)}
-                  placeholder="e.g. Product Designer"
-                  style={{ width: '100%', padding: '8px 12px 8px 38px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '12px', color: 'var(--text-primary)', outline: 'none', fontSize: '13px' }}
-                />
-                <Briefcase size={16} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-              </div>
-            </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <label style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-secondary)' }}>Mobile Number</label>
+              <label style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span>Mobile Number</span>
+                <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 500 }}>(Read-only)</span>
+              </label>
               <div style={{ position: 'relative' }}>
                 <input
                   type="tel"
                   className="styled-input"
-                  value={mobileNumber}
-                  onChange={(e) => setMobileNumber(e.target.value)}
-                  placeholder="e.g. +91 98765 43210"
-                  style={{ width: '100%', padding: '8px 12px 8px 38px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '12px', color: 'var(--text-primary)', outline: 'none', fontSize: '13px' }}
+                  value={mobileNumber || user?.mobileNumber || ''}
+                  readOnly
+                  disabled
+                  placeholder="Not provided"
+                  style={{ width: '100%', padding: '8px 12px 8px 38px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '12px', color: 'var(--text-secondary)', outline: 'none', fontSize: '13px', cursor: 'not-allowed', opacity: 0.75 }}
                 />
                 <Phone size={16} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
               </div>

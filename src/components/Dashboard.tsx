@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import type { User } from '../types/todo';
-import { api } from '../services/interpreter';
+import { getAllTasks, createTask, updateTask, deleteTask } from '../service/task';
 import { Settings as SettingsComponent } from './Settings';
 import { Analytics as AnalyticsComponent } from './Analytics';
 import { Tasks as TasksComponent } from './Tasks';
@@ -14,7 +14,6 @@ import {
   ChartsGrid,
 } from '@mui/x-charts';
 import {
-  Search,
   Plus,
   Moon,
   Sun,
@@ -22,10 +21,8 @@ import {
   LayoutDashboard,
   CheckSquare,
   BarChart3,
-  FolderKanban,
   Settings,
   Sparkles,
-  Flame,
   CheckCircle2,
   Clock,
   AlertTriangle,
@@ -1997,12 +1994,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Bottom section */}
       <div style={{ marginTop: 'auto', paddingTop: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {/* User Profile Card */}
-        <div className="sidebar-user-card" title={collapsed && !mobileOpen ? `${userName} — ${userRole}` : undefined}>
+        <div className="sidebar-user-card" title={collapsed && !mobileOpen ? `${userName}` : undefined}>
           <div className="avatar" style={{ width: '36px', height: '36px', fontSize: '13px' }}>{userInitials}</div>
           {(!collapsed || mobileOpen) && (
             <div className="sidebar-user-info">
               <span className="sidebar-user-name">{userName}</span>
-              <span className="sidebar-user-role">{userRole}</span>
             </div>
           )}
         </div>
@@ -3468,7 +3464,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, onUpdateUs
   useEffect(() => {
     const fetchBackendTasks = async () => {
       try {
-        const remoteTasks = await api.getAllTasks();
+        const remoteTasks = await getAllTasks();
         if (remoteTasks && Array.isArray(remoteTasks) && remoteTasks.length > 0) {
           setTasks((prevTasks) => {
             const remoteIds = new Set(remoteTasks.map((t) => t.id));
@@ -3519,13 +3515,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, onUpdateUs
       );
       addToast('✏️ Task Updated', `"${taskData.title}" was updated successfully.`);
       try {
-        await api.updateTask(taskData.id, taskData);
+        await updateTask(taskData.id, taskData);
       } catch (err) {
         console.warn('Failed to update task on backend:', err);
       }
     } else {
       try {
-        const createdTask = await api.createTask(taskData);
+        const createdTask = await createTask(taskData);
         setTasks([createdTask, ...tasks]);
       } catch (err) {
         console.warn('Failed to create task on backend, creating locally:', err);
@@ -3567,7 +3563,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, onUpdateUs
     }
 
     try {
-      await api.updateTask(id, { status: newStatus });
+      await updateTask(id, { status: newStatus });
     } catch (err) {
       console.warn('Failed to toggle status on backend:', err);
     }
@@ -3587,7 +3583,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, onUpdateUs
     setTasks(tasks.filter((t) => t.id !== id));
     addToast('🗑️ Task Deleted', targetTask ? `"${targetTask.title}" was removed.` : 'Task removed from workspace.');
     try {
-      await api.deleteTask(id);
+      await deleteTask(id);
     } catch (err) {
       console.warn('Failed to delete task on backend:', err);
     }

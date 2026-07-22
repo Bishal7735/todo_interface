@@ -1,42 +1,22 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import { LandingPage } from './landing/LandingPage';
-import { Dashboard } from './components/Dashboard';
-import { AuthPage } from './components/Login';
+import { LandingPage } from './pages/LandingPage';
+import { DashboardPage } from './pages/DashboardPage';
+import { LoginPage } from './pages/LoginPage';
 import type { User } from './types/todo';
-import { removeTokens } from './services/interpreter';
+import { AuthProvider, useAuth } from './context/AuthContext';
 
-function App() {
+function AppRoutes() {
   const navigate = useNavigate();
-  const [currentUser, setCurrentUser] = useState<User | null>(() => {
-    const savedUser = localStorage.getItem('listify_user');
-    if (savedUser) {
-      try {
-        return JSON.parse(savedUser);
-      } catch (e) {
-        return null;
-      }
-    }
-    return null;
-  });
+  const { currentUser, loginUser, updateUser, logoutUser } = useAuth();
 
   const handleLoginSuccess = (user: User) => {
-    setCurrentUser(user);
-    localStorage.setItem('listify_user', JSON.stringify(user));
+    loginUser(user);
     navigate('/dashboard');
   };
 
-  const handleUpdateUser = (updatedUser: User) => {
-    setCurrentUser(updatedUser);
-    localStorage.setItem('listify_user', JSON.stringify(updatedUser));
-  };
-
   const handleLogout = () => {
-    setCurrentUser(null);
-    localStorage.removeItem('listify_user');
-    localStorage.removeItem('listify_tasks');
-    localStorage.removeItem('taskpulse_tasks');
-    removeTokens();
+    logoutUser();
     navigate('/');
   };
 
@@ -45,13 +25,18 @@ function App() {
       <Route path="/" element={<LandingPage />} />
       <Route
         path="/login"
-        element={<AuthPage onLoginSuccess={handleLoginSuccess} />}
+        element={<LoginPage onLoginSuccess={handleLoginSuccess} />}
       />
       <Route
         path="/dashboard"
         element={
           currentUser ? (
-            <Dashboard user={currentUser} onLogout={handleLogout} onUpdateUser={handleUpdateUser} initialSection="dashboard" />
+            <DashboardPage
+              user={currentUser}
+              onLogout={handleLogout}
+              onUpdateUser={updateUser}
+              initialSection="dashboard"
+            />
           ) : (
             <Navigate to="/login" replace />
           )
@@ -61,7 +46,12 @@ function App() {
         path="/tasks"
         element={
           currentUser ? (
-            <Dashboard user={currentUser} onLogout={handleLogout} onUpdateUser={handleUpdateUser} initialSection="tasks" />
+            <DashboardPage
+              user={currentUser}
+              onLogout={handleLogout}
+              onUpdateUser={updateUser}
+              initialSection="tasks"
+            />
           ) : (
             <Navigate to="/login" replace />
           )
@@ -69,6 +59,14 @@ function App() {
       />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppRoutes />
+    </AuthProvider>
   );
 }
 

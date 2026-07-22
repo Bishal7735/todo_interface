@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { api, getToken } from './interpreter';
+import { syncFocusTime, getFocusTime } from '../service/task';
+import { getToken } from '../service/auth';
 
 const STORAGE_KEY = 'listify_tab_focus_time_v1';
 
@@ -75,7 +76,7 @@ export const useTabFocusTime = () => {
   // Load user's focus time from database on mount & merge
   useEffect(() => {
     let isMounted = true;
-    api.getFocusTime().then((records) => {
+    getFocusTime().then((records) => {
       if (!isMounted || !Array.isArray(records) || records.length === 0) return;
       setFocusMap((prev) => {
         const merged = { ...prev };
@@ -108,7 +109,7 @@ export const useTabFocusTime = () => {
           
           // Sync to backend every 10 seconds
           if (updatedSecs % 10 === 0) {
-            api.syncFocusTime(today, Math.floor(updatedSecs / 60), updatedSecs);
+            syncFocusTime(today, Math.floor(updatedSecs / 60), updatedSecs);
           }
           return updated;
         });
