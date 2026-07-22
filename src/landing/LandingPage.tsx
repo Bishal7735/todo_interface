@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Sparkles,
@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { Container, Chip } from '@mui/material';
 
-import LiquidEther from './LiquidEther';
+const LiquidEther = lazy(() => import('./LiquidEther'));
 
 export interface Review {
   id: string;
@@ -910,22 +910,24 @@ export const LandingPage: React.FC = () => {
       </div>
 
       <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0, pointerEvents: 'none', opacity: 0.85 }}>
-        <LiquidEther
-          mouseForce={20}
-          cursorSize={100}
-          isViscous
-          viscous={30}
-          iterationsViscous={32}
-          iterationsPoisson={32}
-          resolution={0.5}
-          isBounce
-          autoDemo
-          autoSpeed={0.5}
-          autoIntensity={2.2}
-          takeoverDuration={0.25}
-          autoResumeDelay={3000}
-          autoRampDuration={0.6}
-        />
+        <Suspense fallback={null}>
+          <LiquidEther
+            mouseForce={20}
+            cursorSize={100}
+            isViscous
+            viscous={30}
+            iterationsViscous={14}
+            iterationsPoisson={14}
+            resolution={0.4}
+            isBounce
+            autoDemo
+            autoSpeed={0.5}
+            autoIntensity={2.2}
+            takeoverDuration={0.25}
+            autoResumeDelay={3000}
+            autoRampDuration={0.6}
+          />
+        </Suspense>
       </div>
 
       {/* Navigation Header Wrapper */}
